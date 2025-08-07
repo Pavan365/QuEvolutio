@@ -285,3 +285,47 @@ class HilbertSpace:
         """
 
         return np.fft.fftn(state, norm="ortho")
+
+
+class TimeGrid:
+    """
+    Represents a discretised time interval.
+
+    Attributes
+    ----------
+    time_min: float
+        The minimum time axis value.
+    time_max: float
+        The maximum time axis value.
+    num_points: int
+        The number of sampling points for the discretised time axis.
+    time_axis: RVector
+        The discretised time axis.
+    time_dt: float
+        The discretised time axis spacing.
+    """
+
+    def __init__(self, time_min: float, time_max: float, num_points: int) -> None:
+        """
+        Initialises an instance of the TimeGrid class.
+
+        Parameters
+        ----------
+        time_min: float
+            The minimum time axis value.
+        time_max: float
+            The maximum time axis value.
+        num_points: int
+            The number of sampling points for the discretised time axis.
+        """
+
+        # Assign attributes.
+        self.time_min: float = time_min
+        self.time_max: float = time_max
+        self.num_points: int = num_points
+
+        # Define the time axis.
+        self.time_axis: RVector = np.linspace(
+            time_min, time_max, num_points, dtype=np.float64
+        )
+        self.time_dt: float = self.time_axis[1] - self.time_axis[0]
