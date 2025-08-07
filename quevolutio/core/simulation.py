@@ -79,7 +79,7 @@ class HilbertSpace:
     and grids in both position space and momentum space. The momentum space
     axes and grids are defined and stored unshifted (frequencies not centred).
 
-    Parameters
+    Attributes
     ----------
     num_dimensions : int
         The number of dimensions.
@@ -93,9 +93,6 @@ class HilbertSpace:
         should have shape (num_dimensions, 2), where position_bounds[:, 0]
         stores the minimum values and position_bounds[:, 1] stores the
         maximum values.
-
-    Attributes
-    ----------
     position_axes : RVectorSeq
         The discretised position space axes. This is a sequence of RVector,
         with length (num_dimensions).
