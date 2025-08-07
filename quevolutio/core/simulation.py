@@ -3,7 +3,7 @@ Classes for setting up simulations.
 """
 
 # Import standard modules.
-from typing import cast, Sequence, TypeAlias, Union
+from typing import cast, Mapping, Protocol, Sequence, TypeAlias, Union
 
 # Import external modules.
 import numpy as np
@@ -71,6 +71,9 @@ ITensorSeq: TypeAlias = Sequence[ITensor]
 GTensorSeq: TypeAlias = Sequence[RTensor] | Sequence[CTensor]
 RTensorSeq: TypeAlias = Sequence[RTensor]
 CTensorSeq: TypeAlias = Sequence[CTensor]
+
+# Generalised type alias for controls (time-dependent parameters).
+Control: TypeAlias = float | complex | GTensor
 
 
 class HilbertSpace:
@@ -285,6 +288,120 @@ class HilbertSpace:
         """
 
         return np.fft.fftn(state, norm="ortho")
+
+
+class Controls(Protocol):
+    """
+    Represents a set of time-dependent parameters (controls) that influence the
+    structure of a Hamiltonian. An example of a control is a time-dependent
+    phase modulation function.
+    """
+
+    def __call__(
+        self, time: float
+    ) -> Union[Control, Sequence[Control], Mapping[str, Control]]:
+        """
+        Calculates the time-dependent parameters (controls) of a Hamiltonian at
+        a given time.
+
+        Parameters
+        ----------
+        time : float
+            The time at which to evaluate the controls.
+
+        Returns
+        -------
+        Union[Control, Sequence[Control], Mapping[str, Control]]
+            The controls.
+        """
+
+        ...
+
+
+class Hamiltonian(Protocol):
+    """
+    Represents a time-dependent Hamiltonian. This class should contain methods
+    for calculating the action of the Hamiltonian, kinetic energy operator and
+    potential energy operator on a state, with shape (domain.num_dimensions[0],
+    ..., domain.num_dimensions[-1]).
+
+
+    Attributes
+    ----------
+    mass : float
+        The mass of the system.
+    domain : HilbertSpace
+        The discretised Hilbert space (domain) of the system.
+    ...
+    """
+
+    mass: float
+    domain: HilbertSpace
+
+    def __call__(self, state: GTensor, controls: Controls) -> GTensor:
+        """
+        Calculates the action of the Hamiltonian on a state, given a set of
+        time-dependent parameters (controls).
+
+        Parameters
+        ----------
+        state : GTensor
+            The state (e.g. wavefunction) to act on.
+        controls : Controls
+            The time-dependent parameters (controls) which determine the
+            structure of the Hamiltonian.
+
+        Returns
+        -------
+        GTensor
+            The result of acting the Hamiltonian on the given state.
+        """
+
+        ...
+
+    def ke_action(self, state: GTensor, controls: Controls) -> GTensor:
+        """
+        Calculates the action of the kinetic energy operator on a state, given
+        a set of time-dependent parameters (controls).
+
+        Parameters
+        ----------
+        state : GTensor
+            The state (e.g. wavefunction) to act on.
+        controls : Controls
+            The time-dependent parameters (controls) which determine the
+            structure of the Hamiltonian.
+
+        Returns
+        -------
+        GTensor
+            The result of acting the kinetic energy operator on the given
+            state.
+        """
+
+        ...
+
+    def pe_action(self, state: GTensor, controls: Controls) -> GTensor:
+        """
+        Calculates the action of the potential energy operator on a state,
+        given a set of time-dependent parameters (controls).
+
+        Parameters
+        ----------
+        state : GTensor
+            The state (e.g. wavefunction) to act on.
+        controls : Controls
+            The time-dependent parameters (controls) which determine the
+            structure of the Hamiltonian.
+
+        Returns
+        -------
+        GTensor
+            The result of acting the potential energy operator on the given
+            state.
+        """
+
+        ...
 
 
 class TimeGrid:
