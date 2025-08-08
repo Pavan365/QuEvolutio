@@ -24,8 +24,8 @@ def test_rescale_tensor() -> None:
     num_points: int = 100
 
     vector: sim.RVector = np.linspace(-limit, limit, num_points, dtype=np.float64)
-    matrix: sim.RMatrix = np.tile(vector, (2, 1))
-    tensor: sim.RTensor = np.tile(vector, (2, 2, 1))
+    matrix: sim.RMatrix = np.tile(vector, (num_points, 1))
+    tensor: sim.RTensor = np.tile(vector, (num_points, num_points, 1))
 
     # Rescale the vector, matrix and tensor.
     vector_rs, v_scale, v_shift = affine.rescale_tensor(vector, a, b)
