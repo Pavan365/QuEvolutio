@@ -3,7 +3,7 @@ Classes for setting up simulations.
 """
 
 # Import standard modules.
-from typing import cast, Mapping, Protocol, Sequence, TypeAlias, Union
+from typing import Callable, Mapping, Protocol, Sequence, TypeAlias, Union, cast
 
 # Import external modules.
 import numpy as np
@@ -72,8 +72,12 @@ GTensorSeq: TypeAlias = Sequence[RTensor] | Sequence[CTensor]
 RTensorSeq: TypeAlias = Sequence[RTensor]
 CTensorSeq: TypeAlias = Sequence[CTensor]
 
-# Generalised type alias for controls (time-dependent parameters).
+# General type alias for controls (time-dependent parameters).
 Control: TypeAlias = float | complex | GTensor
+Controls: TypeAlias = Control | Sequence[Control] | Mapping[str, Control]
+
+# General type alias for a callable that returns a set of controls, given a time.
+HamiltonianControls: TypeAlias = Callable[[float], Controls]
 
 
 class HilbertSpace:
@@ -288,34 +292,6 @@ class HilbertSpace:
         """
 
         return np.fft.fftn(state, norm="ortho")
-
-
-class Controls(Protocol):
-    """
-    Represents a set of time-dependent parameters (controls) that influence the
-    structure of a Hamiltonian. An example of a control is a time-dependent
-    phase modulation function.
-    """
-
-    def __call__(
-        self, time: float
-    ) -> Union[Control, Sequence[Control], Mapping[str, Control]]:
-        """
-        Calculates the time-dependent parameters (controls) of a Hamiltonian at
-        a given time.
-
-        Parameters
-        ----------
-        time : float
-            The time at which to evaluate the controls.
-
-        Returns
-        -------
-        Union[Control, Sequence[Control], Mapping[str, Control]]
-            The controls.
-        """
-
-        ...
 
 
 class Hamiltonian(Protocol):
