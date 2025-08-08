@@ -332,11 +332,17 @@ class Hamiltonian(Protocol):
         The mass of the system.
     domain : HilbertSpace
         The discretised Hilbert space (domain) of the system.
+    eigenvalue_min : float
+        The minimum eigenvalue of the Hamiltonian (approximate).
+    eigenvalue_max : float
+        The maximum eigenvalue of the Hamiltonian (approximate).
     ...
     """
 
     mass: float
     domain: HilbertSpace
+    eigenvalue_min: float
+    eigenvalue_max: float
 
     def __call__(self, state: GTensor, controls: Controls) -> GTensor:
         """
