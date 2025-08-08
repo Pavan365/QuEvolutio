@@ -11,7 +11,7 @@ References
 import numpy as np
 
 # Import local modules.
-import core.simulation as sim
+import quevolutio.core.simulation as sim
 
 
 def gauss_nodes(num_nodes: int) -> sim.RVector:

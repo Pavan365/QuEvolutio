@@ -6,7 +6,7 @@ Mathematical functions for performing affine transformations.
 import numpy as np
 
 # Import local modules.
-import core.simulation as sim
+import quevolutio.core.simulation as sim
 
 
 def rescale_tensor(
