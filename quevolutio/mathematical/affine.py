@@ -1,5 +1,5 @@
 """
-Functions for performing affine transformations.
+Mathematical functions for performing affine transformations.
 """
 
 # Import external modules.

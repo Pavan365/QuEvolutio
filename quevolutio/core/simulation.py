@@ -416,15 +416,15 @@ class TimeGrid:
 
     Attributes
     ----------
-    time_min: float
+    time_min : float
         The minimum time axis value.
-    time_max: float
+    time_max : float
         The maximum time axis value.
-    num_points: int
+    num_points : int
         The number of sampling points for the discretised time axis.
-    time_axis: RVector
+    time_axis : RVector
         The discretised time axis.
-    time_dt: float
+    time_dt : float
         The discretised time axis spacing.
     """
 
@@ -434,11 +434,11 @@ class TimeGrid:
 
         Parameters
         ----------
-        time_min: float
+        time_min : float
             The minimum time axis value.
-        time_max: float
+        time_max : float
             The maximum time axis value.
-        num_points: int
+        num_points : int
             The number of sampling points for the discretised time axis.
         """
 
