@@ -3,7 +3,7 @@ Core classes for setting up simulations.
 """
 
 # Import standard modules.
-from typing import Sequence, TypeAlias
+from typing import Protocol, Sequence, TypeAlias
 
 # Import external modules.
 import numpy as np
@@ -71,3 +71,19 @@ ITensorSeq: TypeAlias = Sequence[NDArray[np.int64]]
 RTensorSeq: TypeAlias = Sequence[NDArray[np.float64]]
 CTensorSeq: TypeAlias = Sequence[NDArray[np.complex128]]
 GTensorSeq: TypeAlias = RTensorSeq | CTensorSeq
+
+
+class QuantumConstants(Protocol):
+    """
+    Interface class for representing the physical constants of a quantum
+    system. This class can be extended to contain system specific constants as
+    required.
+
+    Attributes
+    ----------
+    hbar : float
+        The reduced Planck constant.
+    ...
+    """
+
+    hbar: float
