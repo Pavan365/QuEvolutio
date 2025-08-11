@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quevolutio"
+version = "0.1.0"
+description = "QuEvolutio is a package for evolving (propagating) quantum wavefunctions with respect to the time-dependent Schrödinger equation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Pavan Ponupureddi", email = "Pavan.Ponupureddi@outlook.com" },
+]
+maintainers = [
+    { name = "Pavan Ponupureddi", email = "Pavan.Ponupureddi@outlook.com" },
+]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = ["numpy==2.2.6", "scipy==1.15.2"]
+
+[project.optional-dependencies]
+dev = [
+    "black==25.1.0",
+    "ipykernel==6.30.1",
+    "matplotlib==3.10.5",
+    "pre-commit==4.3.0",
+    "pytest==8.4.1",
+]
+
+[tool.setuptools]
+packages = ["quevolutio"]
