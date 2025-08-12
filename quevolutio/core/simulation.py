@@ -420,7 +420,7 @@ class Hamiltonian(Protocol):
     ke_time_dependent: bool
     pe_time_dependent: bool
 
-    def __call__(self, state: GTensor, controls: Optional[Controls]) -> GTensor:
+    def __call__(self, state: GTensor, controls: Optional[Controls] = None) -> GTensor:
         """
         Calculates the action of the Hamiltonian on a state. If the Hamiltonian
         has explicit time dependence, a set of controls should be passed.
@@ -443,7 +443,7 @@ class Hamiltonian(Protocol):
 
         ...
 
-    def ke_action(self, state: GTensor, controls: Optional[Controls]) -> GTensor:
+    def ke_action(self, state: GTensor, controls: Optional[Controls] = None) -> GTensor:
         """
         Calculates the action of the kinetic energy operator on a state. If the
         kinetic energy operator has explicit time dependence, a set of controls
@@ -468,7 +468,7 @@ class Hamiltonian(Protocol):
 
         ...
 
-    def pe_action(self, state: GTensor, controls: Optional[Controls]) -> GTensor:
+    def pe_action(self, state: GTensor, controls: Optional[Controls] = None) -> GTensor:
         """
         Calculates the action of the potential energy operator on a state. If
         the potential energy operator has explicit time dependence, a set of
@@ -512,7 +512,7 @@ class Inhomogeneous(Protocol):
     domain: QuantumHilbertSpace
     time_dependent: bool
 
-    def __call__(self, controls: Optional[Controls]) -> GTensor:
+    def __call__(self, controls: Optional[Controls] = None) -> GTensor:
         """
         Calculates the inhomogeneous term. If the inhomogeneous term has
         explicit time dependence, a set of controls should be passed.
@@ -587,7 +587,7 @@ class TDSE:
         # Store the homogeneous pre-factor.
         self.prefactor: complex = -1j / self.domain.constants.hbar
 
-    def __call__(self, state: GTensor, controls: Optional[Controls]) -> CTensor:
+    def __call__(self, state: GTensor, controls: Optional[Controls] = None) -> CTensor:
         """
         Calculates the right-hand side of the time-dependent Schrödinger
         equation (TDSE). This is the combination of a homogeneous term and an
@@ -620,7 +620,9 @@ class TDSE:
 
         return rhs
 
-    def homogeneous_term(self, state: GTensor, controls: Optional[Controls]) -> CTensor:
+    def homogeneous_term(
+        self, state: GTensor, controls: Optional[Controls] = None
+    ) -> CTensor:
         """
         Calculates the homogeneous term of the time-dependent Schrödinger
         equation (TDSE). This term represents the action of the Hamiltonian on
@@ -652,7 +654,9 @@ class TDSE:
 
         return cast(CTensor, self.prefactor * self.hamiltonian(state, controls))
 
-    def inhomogeneous_term(self, controls: Optional[Controls]) -> Union[None, GTensor]:
+    def inhomogeneous_term(
+        self, controls: Optional[Controls] = None
+    ) -> Union[None, GTensor]:
         """
         Calculates the inhomogeneous term of the time-dependent Schrödinger
         equation (TDSE). If the inhomogeneous term has explicit time

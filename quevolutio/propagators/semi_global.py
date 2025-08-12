@@ -44,7 +44,7 @@ class SemiGlobalTDSE(sim.TDSE):
         self,
         domain: sim.QuantumHilbertSpace,
         hamiltonian: sim.Hamiltonian,
-        inhomogeneous: Optional[sim.Inhomogeneous],
+        inhomogeneous: Optional[sim.Inhomogeneous] = None,
     ) -> None:
         # Construct the TDSE class.
         super().__init__(domain, hamiltonian, inhomogeneous)
@@ -58,7 +58,7 @@ class SemiGlobalTDSE(sim.TDSE):
         )
 
     def homogeneous_term_rs(
-        self, state: sim.GTensor, controls: Optional[sim.Controls]
+        self, state: sim.GTensor, controls: Optional[sim.Controls] = None
     ) -> sim.CTensor:
         """
         Calculates the homogeneous term of the time-dependent Schrödinger

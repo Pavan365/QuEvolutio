@@ -83,8 +83,8 @@ def ch_coefficients(
 def ch_expansion(
     state: sim.GTensor,
     operator_rs: sim.Operator,
-    controls: Optional[sim.Controls],
     coefficients: sim.GVector,
+    controls: Optional[sim.Controls] = None,
 ) -> sim.GTensor:
     """
     Calculates the Chebyshev expansion of an operator acting on a state through
@@ -98,13 +98,13 @@ def ch_expansion(
     operator_rs : sim.Operator
         The operator being expanded. This should be a function that returns the
         action of the operator on the state, rescaled to the domain [-1, 1].
-    controls : Optional[sim.Controls]
-        The controls that determine the structure of the operator. This should
-        be passed if the operator has explicit time dependence.
     coefficients : simulation.GVector
         The Chebyshev expansion coefficients. The coefficients are expected to
         be the cosine transformed values of values generated from evaluating a
         function of the operator on Chebyshev-Gauss or Chebyshev-Lobatto nodes.
+    controls : Optional[sim.Controls]
+        The controls that determine the structure of the operator. This should
+        be passed if the operator has explicit time dependence.
 
     Returns
     -------
