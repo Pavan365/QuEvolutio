@@ -116,9 +116,9 @@ class HilbertSpace:
     ----------
     num_dimensions : int
         The number of dimensions.
-    num_points : IVector
+    num_points : tuple[int]
         The number of sampling points for the discretised position space
-        axes. This should have shape (num_dimensions).
+        axes. This should have length (num_dimensions).
     position_bounds : RVectors
         The boundaries of the discretised position space axes. This should have
         shape (num_dimensions, 2), where position_bounds[:, 0] are the minimum
@@ -128,9 +128,9 @@ class HilbertSpace:
     ----------
     num_dimensions : int
         The number of dimensions.
-    num_points : IVector
+    num_points : tuple[int]
         The number of sampling points for the discretised position space
-        axes. This has shape (num_dimensions).
+        axes. This has length (num_dimensions).
     position_bounds : RVectors
         The boundaries of the discretised position space axes. This has shape
         (num_dimensions, 2), where position_bounds[:, 0] are the minimum values
@@ -141,7 +141,7 @@ class HilbertSpace:
     position_grids : RTensors
         The discretised position space grids. These store the combinations of
         discretised position space points. This is an array of RTensor, which
-        has shape (num_dimensions, num_points[0], ..., num_points[-1]).
+        has shape (num_dimensions, *num_points).
     position_deltas : RVector
         The spacing between points in the discretised position space axes. This
         has shape (num_dimensions).
@@ -151,27 +151,27 @@ class HilbertSpace:
     wavevector_grids : RTensors
         The discretised wavevector space grids. These store the combinations of
         discretised wavevector space points. This is an array of RTensor, which
-        has shape (num_dimensions, num_points[0], ..., num_points[-1]).
+        has shape (num_dimensions, *num_points).
     wavevector_deltas : RVector
         The spacing between points in the discretised wavevector space
         axes. This has shape (num_dimensions).
     """
 
     def __init__(
-        self, num_dimensions: int, num_points: IVector, position_bounds: RVectors
+        self, num_dimensions: int, num_points: tuple[int], position_bounds: RVectors
     ) -> None:
         # Check parameters.
         # TODO: Rewrite error messages.
         if not (1 <= num_dimensions <= 3):
             raise ValueError("invalid num_dimensions")
-        if num_points.size != num_dimensions:
+        if len(num_points) != num_dimensions:
             raise ValueError("invalid num_points")
         if position_bounds.shape != (num_dimensions, 2):
             raise ValueError("invalid position_bounds")
 
         # Assign attributes.
         self.num_dimensions: int = num_dimensions
-        self.num_points: IVector = num_points
+        self.num_points: tuple[int] = num_points
         self.position_bounds: RVectors = position_bounds
 
         # Define the position axes.
@@ -229,9 +229,9 @@ class QuantumHilbertSpace(HilbertSpace):
     ----------
     num_dimensions : int
         The number of dimensions.
-    num_points : IVector
+    num_points : tuple[int]
         The number of sampling points for the discretised position space
-        axes. This should have shape (num_dimensions).
+        axes. This should have length (num_dimensions).
     position_bounds : RVectors
         The boundaries of the discretised position space axes. This should have
         shape (num_dimensions, 2), where position_bounds[:, 0] are the minimum
@@ -249,7 +249,7 @@ class QuantumHilbertSpace(HilbertSpace):
     momentum_grids : RTensors
         The discretised momentum space grids. These store the combinations of
         discretised momentum space points. This is an array of RTensor, which
-        has shape (num_dimensions, num_points[0], ..., num_points[-1]).
+        has shape (num_dimensions, *num_points).
     momentum_deltas : RVector
         The spacing between points in the discretised momentum space axes. This
         has shape (num_dimensions).
@@ -258,7 +258,7 @@ class QuantumHilbertSpace(HilbertSpace):
     def __init__(
         self,
         num_dimensions: int,
-        num_points: IVector,
+        num_points: tuple[int],
         position_bounds: RVectors,
         constants: QuantumConstants,
     ) -> None:
@@ -287,11 +287,9 @@ class QuantumHilbertSpace(HilbertSpace):
         Parameters
         ----------
         bra : GTensor
-            The bra state. This should have shape (num_points[0], ...,
-            num_points[-1]).
+            The bra state. This should have shape (*num_points).
         ket : GTensor
-            The ket state. This should have shape (num_points[0], ...,
-            num_points[-1]).
+            The ket state. This should have shape (*num_points).
 
         Returns
         -------
@@ -301,12 +299,10 @@ class QuantumHilbertSpace(HilbertSpace):
 
         # Check parameters.
         # TODO: Rewrite error messages.
-        if bra.ndim != self.num_dimensions:
+        if bra.shape != self.num_points:
             raise ValueError("invalid bra")
-        if ket.ndim != self.num_dimensions:
+        if ket.shape != self.num_points:
             raise ValueError("invalid ket")
-        if bra.shape != ket.shape:
-            raise ValueError("invalid bra and ket")
 
         # Calculate the inner product integral.
         integrand: Union[complex, CTensor] = np.conjugate(
@@ -326,8 +322,7 @@ class QuantumHilbertSpace(HilbertSpace):
         Attributes
         ----------
         state : GTensor
-            The state to normalise. This should have shape (num_points[0], ...,
-            num_points[-1]).
+            The state to normalise. This should have shape (*num_points).
 
         Returns
         -------
@@ -337,7 +332,7 @@ class QuantumHilbertSpace(HilbertSpace):
 
         # Check parameters.
         # TODO: Rewrite error messages.
-        if state.ndim != self.num_dimensions:
+        if state.shape != self.num_points:
             raise ValueError("invalid state")
 
         # Calculate the modulus squared of the state.
@@ -429,7 +424,7 @@ class Hamiltonian(Protocol):
         ----------
         state : GTensor
             The state being acted on. This should have shape
-            (domain.num_points[0], ..., domain.num_points[-1]).
+            (*domain.num_points).
         controls : Optional[Controls]
             The controls which determine the structure of the Hamiltonian. This
             should be passed if the Hamiltonian has explicit time dependence.
@@ -453,7 +448,7 @@ class Hamiltonian(Protocol):
         ----------
         state : GTensor
             The state being acted on. This should have shape
-            (domain.num_points[0], ..., domain.num_points[-1]).
+            (*domain.num_points).
         controls : Optional[Controls]
             The controls which determine the structure of the Hamiltonian. This
             should be passed if the kinetic energy operator has explicit time
@@ -478,7 +473,7 @@ class Hamiltonian(Protocol):
         ----------
         state : GTensor
             The state being acted on. This should have shape
-            (domain.num_points[0], ..., domain.num_points[-1]).
+            (*domain.num_points).
         controls : Optional[Controls]
             The controls which determine the structure of the Hamiltonian. This
             should be passed if the potential energy operator has explicit time
@@ -527,8 +522,7 @@ class Inhomogeneous(Protocol):
         Returns
         -------
         GTensor
-            The inhomogeneous term. This has shape (domain.num_points[0], ...,
-            domain.num_points[-1]).
+            The inhomogeneous term. This has shape (*domain.num_points).
         """
 
         ...
