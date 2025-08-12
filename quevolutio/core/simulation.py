@@ -3,7 +3,16 @@ Core classes for setting up simulations.
 """
 
 # Import standard modules.
-from typing import Callable, Mapping, Protocol, Sequence, TypeAlias, Union, cast
+from typing import (
+    Callable,
+    Mapping,
+    Optional,
+    Protocol,
+    Sequence,
+    TypeAlias,
+    Union,
+    cast,
+)
 
 # Import external modules.
 import numpy as np
@@ -375,3 +384,105 @@ class QuantumHilbertSpace(HilbertSpace):
         """
 
         return np.fft.fftn(state, norm="ortho")
+
+
+class Hamiltonian(Protocol):
+    """
+    Interface class for representing a Hamiltonian. The interface requires
+    methods for calculating the action of the Hamiltonian, kinetic energy and
+    potential energy operators on a state. This class can be extended to store
+    system specific pre-computed operators and methods as required.
+
+    Attributes
+    ----------
+    domain : QuantumHilbertSpace
+        The discretised Hilbert space (domain) of the quantum system.
+    eigenvalue_min : float
+        The minimum eigenvalue of the Hamiltonian.
+    eigenvalue_max : float
+        The maximum eigenvalue of the Hamiltonian.
+    time_dependent : bool
+        A boolean flag that indicates whether the Hamiltonian has explicit time
+        dependence.
+    ke_time_dependent : bool
+        A boolean flag that indicates whether the kinetic energy operator has
+        explicit time dependence.
+    pe_time_dependent : bool
+        A boolean flag that indicates whether the potential energy operator has
+        explicit time dependence.
+    """
+
+    domain: QuantumHilbertSpace
+    eigenvalue_min: float
+    eigenvalue_max: float
+
+    time_dependent: bool
+    ke_time_dependent: bool
+    pe_time_dependent: bool
+
+    def __call__(self, state: GTensor, controls: Optional[Controls]) -> GTensor:
+        """
+        Calculates the action of the Hamiltonian on a state. If the Hamiltonian
+        has explicit time dependence, a set of controls should be passed.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state being acted on.
+        controls : Optional[Controls]
+            The controls which determine the structure of the Hamiltonian. This
+            should be passed if the Hamiltonian has explicit time dependence.
+
+        Returns
+        -------
+        GTensor
+            The result of acting the Hamiltonian on the state.
+        """
+
+        ...
+
+    def ke_action(self, state: GTensor, controls: Optional[Controls]) -> GTensor:
+        """
+        Calculates the action of the kinetic energy operator on a state. If the
+        kinetic energy operator has explicit time dependence, a set of controls
+        should be passed.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state being acted on.
+        controls : Optional[Controls]
+            The controls which determine the structure of the Hamiltonian. This
+            should be passed if the kinetic energy operator has explicit time
+            dependence.
+
+        Returns
+        -------
+        GTensor
+            The result of acting the kinetic energy operator on the state.
+        """
+
+        ...
+
+    def pe_action(self, state: GTensor, controls: Optional[Controls]) -> GTensor:
+        """
+        Calculates the action of the potential energy operator on a state. If
+        the potential energy operator has explicit time dependence, a set of
+        controls should be passed.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state being acted on.
+        controls : Optional[Controls]
+            The controls which determine the structure of the Hamiltonian. This
+            should be passed if the potential energy operator has explicit time
+            dependence.
+
+        Returns
+        -------
+        GTensor
+            The result of acting the potential energy operator on the state.
+        """
+
+        ...
