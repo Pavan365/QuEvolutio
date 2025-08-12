@@ -250,6 +250,59 @@ def ch_ta_conversion(order: int, time_min: float, time_max: float) -> sim.RMatri
     return conversion
 
 
+def ne_coefficients(
+    nodes: sim.RVector,
+    function_values: sim.GTensors,
+) -> sim.GTensor:
+    """
+    Calculates the coefficients for a Newtonian interpolation expansion of a
+    function through building a divided differences table, which is upper
+    triangular and contains the coefficients on the main diagonal. The function
+    being expanded should be evaluated on nodes in the target domain.
+
+    Parameters
+    ----------
+    nodes : sim.RVector
+        The nodes in the target domain that the function being expanded is
+        evaluated on.
+    function_values : sim.GTensors
+        The values of the function being expanded evaluated on the nodes in
+        the target domain. This is expected to be at least two dimensional,
+        where the expansion is taken to be along the zeroth axis.
+
+    Returns
+    -------
+    coefficients : sim.GTensor
+        The Newtonian interpolation coefficients.
+    """
+
+    # Store the number of expansion terms.
+    order: int = nodes.shape[0]
+
+    # Set up the divided differences tables.
+    tables: sim.GTensor = cast(
+        sim.GTensor,
+        np.zeros(
+            (order, order, *function_values.shape[1:]), dtype=function_values.dtype
+        ),
+    )
+    tables[0] = function_values
+
+    # Construct the divided differences tables (upper triangular).
+    for i in range(1, order):
+        for j in range(i, order):
+            tables[i, j] = (tables[i - 1, j] - tables[i - 1, j - 1]) / (
+                nodes[j] - nodes[j - i]
+            )
+
+    # Store the Newtonian interpolation coefficients.
+    coefficients: sim.GTensor = tables[
+        np.arange(order, dtype=np.int32), np.arange(order, dtype=np.int32)
+    ]
+
+    return coefficients
+
+
 def rescale_tensor(
     tensor: sim.RTensor, a: float, b: float
 ) -> tuple[sim.RTensor, float, float]:
