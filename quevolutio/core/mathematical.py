@@ -12,11 +12,72 @@ References
 + I. Schaefer et al. (2017). Available at: https://doi.org/10.1016/j.jcp.2017.04.017.
 """
 
+# Import local modules.
+from typing import Union, cast
+
 # Import external modules.
 import numpy as np
+from scipy.fft import dct
 
 # Import local modules.
 import quevolutio.core.simulation as sim
+
+
+def ch_coefficients(
+    function_values: Union[sim.GTensor, sim.GTensors],
+    dct_type: int,
+) -> Union[sim.GTensor, sim.GTensors]:
+    """
+    Calculates the coefficients for a Chebyshev expansion of a function through
+    the discrete cosine transform (DCT). The function being expanded should be
+    evaluated on either Chebyshev-Gauss or Chebyshev-Lobatto nodes.
+
+    + DCT-I     : Chebyshev-Lobatto
+    + DCT-II    : Chebyshev-Gauss
+
+    Parameters
+    ----------
+    function_values : Union[sim.GTensor, sim.GTensors]
+        The values of the function evaluated on either Chebyshev-Gauss or
+        Chebyshev-Lobatto nodes. The expansion is taken to be along the zeroth
+        axis of the function values.
+    type : int
+        The type of discrete cosine transform (DCT) to use. DCT-I should be
+        used for functions evaluated on Chebyshev-Lobatto nodes, and DCT-II
+        for functions evaluated on Chebyshev-Gauss nodes.
+
+    Returns
+    -------
+    coefficients : Union[sim.GTensor, sim.GTensors]
+        The Chebyshev expansion coefficients.
+    """
+
+    # Check parameters.
+    # TODO: Rewrite error messages.
+    if dct_type not in [1, 2]:
+        raise ValueError("invalid dct_type")
+
+    # Store the number of expansion terms.
+    order: int = function_values.shape[0]
+
+    # Perform the discrete cosine transform (DCT).
+    coefficients: Union[sim.GTensor, sim.GTensors] = cast(
+        Union[sim.GTensor, sim.GTensors],
+        dct(function_values, type=dct_type, axis=0, norm=None),
+    )
+
+    # Normalisation for DCT-I.
+    if dct_type == 1:
+        coefficients /= order - 1
+        coefficients[0] /= 2
+        coefficients[-1] /= 2
+
+    # Normalisation for DCT-II.
+    elif dct_type == 2:
+        coefficients /= order
+        coefficients[0] /= 2
+
+    return coefficients
 
 
 def ch_gauss_nodes(num_nodes: int) -> sim.RVector:
