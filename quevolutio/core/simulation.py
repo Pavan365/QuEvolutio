@@ -189,7 +189,8 @@ class HilbertSpace:
 
         # Define the position grids.
         self.position_grids: RTensors = np.asarray(
-            np.meshgrid(*self.position_axes, indexing="ij"), dtype=np.float64
+            np.meshgrid(*self.position_axes, indexing="ij", sparse=True),
+            dtype=np.float64,
         )
 
         # Define the position deltas.
@@ -207,7 +208,8 @@ class HilbertSpace:
 
         # Define the wavevector grids.
         self.wavevector_grids: RTensors = np.asarray(
-            np.meshgrid(*self.wavevector_axes, indexing="ij"), dtype=np.float64
+            np.meshgrid(*self.wavevector_axes, indexing="ij", sparse=True),
+            dtype=np.float64,
         )
 
         # Define the wavevector deltas.
