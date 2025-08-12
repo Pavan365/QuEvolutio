@@ -428,7 +428,8 @@ class Hamiltonian(Protocol):
         Parameters
         ----------
         state : GTensor
-            The state being acted on.
+            The state being acted on. This should have shape
+            (domain.num_points[0], ..., domain.num_points[-1]).
         controls : Optional[Controls]
             The controls which determine the structure of the Hamiltonian. This
             should be passed if the Hamiltonian has explicit time dependence.
@@ -436,7 +437,8 @@ class Hamiltonian(Protocol):
         Returns
         -------
         GTensor
-            The result of acting the Hamiltonian on the state.
+            The result of acting the Hamiltonian on the state. This has the
+            same shape as the state.
         """
 
         ...
@@ -450,7 +452,8 @@ class Hamiltonian(Protocol):
         Parameters
         ----------
         state : GTensor
-            The state being acted on.
+            The state being acted on. This should have shape
+            (domain.num_points[0], ..., domain.num_points[-1]).
         controls : Optional[Controls]
             The controls which determine the structure of the Hamiltonian. This
             should be passed if the kinetic energy operator has explicit time
@@ -459,7 +462,8 @@ class Hamiltonian(Protocol):
         Returns
         -------
         GTensor
-            The result of acting the kinetic energy operator on the state.
+            The result of acting the kinetic energy operator on the state. This
+            has the same shape as the state.
         """
 
         ...
@@ -473,7 +477,8 @@ class Hamiltonian(Protocol):
         Parameters
         ----------
         state : GTensor
-            The state being acted on.
+            The state being acted on. This should have shape
+            (domain.num_points[0], ..., domain.num_points[-1]).
         controls : Optional[Controls]
             The controls which determine the structure of the Hamiltonian. This
             should be passed if the potential energy operator has explicit time
@@ -482,7 +487,8 @@ class Hamiltonian(Protocol):
         Returns
         -------
         GTensor
-            The result of acting the potential energy operator on the state.
+            The result of acting the potential energy operator on the
+            state. This has the same shape as the state.
         """
 
         ...
