@@ -3,7 +3,7 @@ Core classes for setting up simulations.
 """
 
 # Import standard modules.
-from typing import Protocol, Sequence, TypeAlias, Union, cast
+from typing import Callable, Mapping, Protocol, Sequence, TypeAlias, Union, cast
 
 # Import external modules.
 import numpy as np
@@ -71,6 +71,13 @@ ITensorSeq: TypeAlias = Sequence[NDArray[np.int64]]
 RTensorSeq: TypeAlias = Sequence[NDArray[np.float64]]
 CTensorSeq: TypeAlias = Sequence[NDArray[np.complex128]]
 GTensorSeq: TypeAlias = RTensorSeq | CTensorSeq
+
+# Type aliases for controls (time-dependent parameters).
+Control: TypeAlias = float | complex | RTensor | CTensor
+Controls: TypeAlias = Control | Sequence[Control] | Mapping[str, Control]
+
+# Type alias for a callable that returns a set of controls, given a time.
+ControlsGenerator: TypeAlias = Callable[[float], Controls]
 
 
 class QuantumConstants(Protocol):
