@@ -3,7 +3,7 @@ Core classes for setting up simulations.
 """
 
 # Import standard modules.
-from typing import Protocol, Sequence, TypeAlias
+from typing import Protocol, Sequence, TypeAlias, Union, cast
 
 # Import external modules.
 import numpy as np
@@ -198,3 +198,173 @@ class HilbertSpace:
         self.wavevector_deltas: RVector = np.asarray(
             [axis[1] - axis[0] for axis in self.wavevector_axes]
         )
+
+
+class QuantumHilbertSpace(HilbertSpace):
+    """
+    Represents a discretised Hilbert space. This class aims to represent a
+    Hilbert space in the context of a quantum system. It builds on the abstract
+    "HilbertSpace" class through defining discretised momentum space axes and
+    grids, which are stored unshifted (frequencies not centred).
+
+    + All attributes from the "HilbertSpace" class are inherited.
+
+    Parameters
+    ----------
+    num_dimensions : int
+        The number of dimensions.
+    num_points : IVector
+        The number of sampling points for the discretised position space
+        axes. This should have shape (num_dimensions).
+    position_bounds : RVectors
+        The boundaries of the discretised position space axes. This should have
+        shape (num_dimensions, 2), where position_bounds[:, 0] are the minimum
+        values and position_bounds[:, 1] are the maximum values.
+    constants : QuantumConstants
+        The physical constants of the quantum system.
+
+    Parameters
+    ----------
+    constants : QuantumConstants
+        The physical constants of the quantum system.
+    momentum_axes : RVectorSeq
+        The discretised momentum space axes. This is an immutable sequence of
+        RVector, which has length (num_dimensions).
+    momentum_grids : RTensors
+        The discretised momentum space grids. These store the combinations of
+        discretised momentum space points. This is an array of RTensor, which
+        has shape (num_dimensions, num_points[0], ..., num_points[-1]).
+    momentum_deltas : RVector
+        The spacing between points in the discretised momentum space axes. This
+        has shape (num_dimensions).
+    """
+
+    def __init__(
+        self,
+        num_dimensions: int,
+        num_points: IVector,
+        position_bounds: RVectors,
+        constants: QuantumConstants,
+    ) -> None:
+        # Construct the HilbertSpace class.
+        super().__init__(num_dimensions, num_points, position_bounds)
+
+        # Assign attributes.
+        self.constants: QuantumConstants = constants
+
+        # Define the momentum axes.
+        self.momentum_axes: RVectorSeq = [
+            self.constants.hbar * axis for axis in self.wavevector_axes
+        ]
+        self.momentum_axes: RVectorSeq = tuple(self.momentum_axes)
+
+        # Define the momentum grids & deltas.
+        self.momentum_grids: RTensors = self.constants.hbar * self.wavevector_grids
+        self.momentum_deltas: RVector = self.constants.hbar * self.wavevector_deltas
+
+    def inner_product(self, bra: GTensor, ket: GTensor) -> complex:
+        """
+        Calculates the inner product between two states, over the discretised
+        Hilbert space. This function handles the complex conjugation of the bra
+        state.
+
+        Parameters
+        ----------
+        bra : GTensor
+            The bra state. This should have shape (num_points[0], ...,
+            num_points[-1]).
+        ket : GTensor
+            The ket state. This should have shape (num_points[0], ...,
+            num_points[-1]).
+
+        Returns
+        -------
+        complex
+            The inner product of the two states.
+        """
+
+        # Check parameters.
+        # TODO: Rewrite error messages.
+        if bra.ndim != self.num_dimensions:
+            raise ValueError("invalid bra")
+        if ket.ndim != self.num_dimensions:
+            raise ValueError("invalid ket")
+        if bra.shape != ket.shape:
+            raise ValueError("invalid bra and ket")
+
+        # Calculate the inner product integral.
+        integrand: Union[complex, CTensor] = np.conjugate(
+            bra.astype(np.complex128, copy=False)
+        ) * ket.astype(np.complex128, copy=False)
+
+        for i in range(self.num_dimensions):
+            integrand = np.trapezoid(integrand, axis=0, dx=self.position_deltas[i])
+
+        return cast(complex, integrand)
+
+    def normalise_state(self, state: GTensor) -> GTensor:
+        """
+        Normalises a state over the discretised Hilbert space. This function
+        uses the integral definition (not vector) of the norm.
+
+        Attributes
+        ----------
+        state : GTensor
+            The state to normalise. This should have shape (num_points[0], ...,
+            num_points[-1]).
+
+        Returns
+        -------
+        GTensor
+            The normalised state.
+        """
+
+        # Check parameters.
+        # TODO: Rewrite error messages.
+        if state.ndim != self.num_dimensions:
+            raise ValueError("invalid state")
+
+        # Calculate the modulus squared of the state.
+        norm: Union[float, RTensor] = np.abs(state) ** 2
+
+        # Calculate the norm integral.
+        for i in range(self.num_dimensions):
+            norm = np.trapezoid(norm, axis=0, dx=self.position_deltas[i])
+
+        return state / np.sqrt(norm)
+
+    @staticmethod
+    def position_basis(state: GTensor) -> GTensor:
+        """
+        Converts the basis of a state from momentum space to position space.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state in momentum space.
+
+        Returns
+        -------
+        GTensor
+            The state in position space.
+        """
+
+        return np.fft.ifftn(state, norm="ortho")
+
+    @staticmethod
+    def momentum_basis(state: GTensor) -> GTensor:
+        """
+        Converts the basis of a state from position space to momentum space.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state in position space.
+
+        Returns
+        -------
+        GTensor
+            The state in momentum space.
+        """
+
+        return np.fft.fftn(state, norm="ortho")
