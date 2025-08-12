@@ -8,10 +8,29 @@ References
 """
 
 # Import standard modules.
+from enum import Enum
 from typing import Optional, cast
 
 # Import local modules.
 import quevolutio.core.simulation as sim
+
+
+class ApproximationBasis(Enum):
+    """
+    Enumeration of the available approximation bases for the inhomogeneous
+    term in the Semi-Global propagation scheme.
+
+    Members
+    -------
+    CHEBYSHEV: str
+        Represents a Chebyshev expansion of the inhomogeneous term.
+    NEWTONIAN: str
+        Represents a Newtonian interpolation expansion of the inhomogeneous
+        term.
+    """
+
+    CHEBYSHEV = "ch"
+    NEWTONIAN = "ne"
 
 
 class SemiGlobalTDSE(sim.TDSE):
