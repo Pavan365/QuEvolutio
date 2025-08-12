@@ -526,3 +526,155 @@ class Inhomogeneous(Protocol):
         """
 
         ...
+
+
+class TDSE:
+    """
+    Represents a time-dependent Schrödinger equation (TDSE). This class aims to
+    encapsulate the right-hand side of the TDSE, which is the combination of a
+    homogeneous term and an optional inhomogeneous term. This class is designed
+    for use in the time evolution of quantum states.
+
+    Parameters
+    ----------
+    domain : QuantumHilbertSpace
+        The discretised Hilbert space (domain) of the quantum system.
+    hamiltonian : Hamiltonian
+        The Hamiltonian of the quantum system.
+    inhomogeneous : Optional[Inhomogeneous]
+        The inhomogeneous term of the quantum system. This is an optional term
+        that can be excluded.
+
+    Attributes
+    ----------
+    domain : QuantumHilbertSpace
+        The discretised Hilbert space (domain) of the quantum system.
+    hamiltonian : Hamiltonian
+        The Hamiltonian of the quantum system.
+    inhomogeneous : Optional[Inhomogeneous]
+        The inhomogeneous term of the quantum system. This is an optional term
+        that can be excluded.
+    prefactor : complex
+        The constant that multiplies the homogeneous term in the time-dependent
+        Schrödinger equation (TDSE).
+    """
+
+    def __init__(
+        self,
+        domain: QuantumHilbertSpace,
+        hamiltonian: Hamiltonian,
+        inhomogeneous: Optional[Inhomogeneous],
+    ) -> None:
+        # Check parameters.
+        # TODO: Rewrite error messages.
+        if domain.num_points != hamiltonian.domain.num_points:
+            raise ValueError("invalid Hamiltonian")
+        if inhomogeneous is not None and (
+            domain.num_points != inhomogeneous.domain.num_points
+        ):
+            raise ValueError("invalid inhomogeneous")
+
+        # Assign attributes.
+        self.domain: QuantumHilbertSpace = domain
+        self.hamiltonian: Hamiltonian = hamiltonian
+        self.inhomogeneous: Optional[Inhomogeneous] = inhomogeneous
+
+        # Store the homogeneous pre-factor.
+        self.prefactor: complex = -1j / self.domain.constants.hbar
+
+    def __call__(self, state: GTensor, controls: Optional[Controls]) -> CTensor:
+        """
+        Calculates the right-hand side of the time-dependent Schrödinger
+        equation (TDSE). This is the combination of a homogeneous term and an
+        optional inhomogeneous term.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state being acted on. This should have shape
+            (*domain.num_points).
+        controls : Optional[Controls]
+            The controls which determine the structure of the time-dependent
+            Schrödinger equation (TDSE). This should be passed if the, TDSE has
+            explicit time dependence.
+
+        Returns
+        -------
+        CTensor
+            The right-hand side of the time-dependent Schrödinger equation
+            (TDSE). This has shape (*domain.num_points).
+        """
+
+        # Calculate the homogeneous term.
+        rhs: CTensor = self.homogeneous_term(state, controls)
+
+        # Calculate the inhomogeneous term.
+        inhomo_term: Union[None, GTensor] = self.inhomogeneous_term(controls)
+        if inhomo_term is not None:
+            rhs += inhomo_term
+
+        return rhs
+
+    def homogeneous_term(self, state: GTensor, controls: Optional[Controls]) -> CTensor:
+        """
+        Calculates the homogeneous term of the time-dependent Schrödinger
+        equation (TDSE). This term represents the action of the Hamiltonian on
+        a state, multiplied with the homogeneous pre-factor. If the Hamiltonian
+        has explicit time dependence, a set of controls should be passed.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state being acted on. This should have shape
+            (*domain.num_points).
+        controls : Optional[Controls]
+            The controls which determine the structure of the Hamiltonian. This
+            should be passed if the Hamiltonian has explicit time dependence.
+
+        Returns
+        -------
+        CTensor
+            The homogeneous term of the time-dependent Schrödinger equation
+            (TDSE). This has shape (*domain.num_points).
+        """
+
+        # Check parameters.
+        # TODO: Rewrite error messages.
+        if state.shape != self.domain.num_points:
+            raise ValueError("invalid state")
+        if self.hamiltonian.time_dependent and controls is None:
+            raise ValueError("invalid controls")
+
+        return cast(CTensor, self.prefactor * self.hamiltonian(state, controls))
+
+    def inhomogeneous_term(self, controls: Optional[Controls]) -> Union[None, GTensor]:
+        """
+        Calculates the inhomogeneous term of the time-dependent Schrödinger
+        equation (TDSE). If the inhomogeneous term has explicit time
+        dependence, a set of controls should be passed.
+
+        Parameters
+        ----------
+        controls : Optional[Controls]
+            The controls which determine the structure of the inhomogeneous
+            term. This should be passed if the inhomogeneous term has explicit
+            time dependence.
+
+        Returns
+        -------
+        Union[None, GTensor]
+            The inhomogeneous term of the time-dependent Schrödinger equation
+            (TDSE). This has shape (*domain.num_points). If the inhomogeneous
+            term is not defined, None is returned.
+        """
+
+        # If the inhomogeneous term is not defined, return None.
+        if self.inhomogeneous is None:
+            return None
+
+        # Check parameters.
+        # TODO: Rewrite error messages.
+        if self.inhomogeneous.time_dependent and controls is None:
+            raise ValueError("invalid controls")
+
+        return self.inhomogeneous(controls)
