@@ -13,7 +13,7 @@ References
 """
 
 # Import local modules.
-from typing import Union, cast
+from typing import Optional, Union, cast
 
 # Import external modules.
 import numpy as np
@@ -78,6 +78,64 @@ def ch_coefficients(
         coefficients[0] /= 2
 
     return coefficients
+
+
+def ch_expansion(
+    state: sim.GTensor,
+    operator_rs: sim.Operator,
+    controls: Optional[sim.Controls],
+    coefficients: sim.GVector,
+) -> sim.GTensor:
+    """
+    Calculates the Chebyshev expansion of an operator acting on a state through
+    the recursion relation for the Chebyshev polynomials of the first kind. The
+    number of expansion terms is taken to be the number of coefficients.
+
+    Parameters
+    ----------
+    state : simulation.GVector
+        The state being acted upon by the operator.
+    operator_rs : sim.Operator
+        The operator being expanded. This should be a function that returns the
+        action of the operator on the state, rescaled to the domain [-1, 1].
+    controls : Optional[sim.Controls]
+        The controls that determine the structure of the operator. This should
+        be passed if the operator has explicit time dependence.
+    coefficients : simulation.GVector
+        The Chebyshev expansion coefficients. The coefficients are expected to
+        be the cosine transformed values of values generated from evaluating a
+        function of the operator on Chebyshev-Gauss or Chebyshev-Lobatto nodes.
+
+    Returns
+    -------
+    expansion : sim.GTensor
+        The expansion term resulting from the Chebyshev expansion of the
+        operator acting on the state.
+    """
+
+    # Store the number of expansion terms.
+    order: int = coefficients.shape[0]
+
+    # Calculate the first two Chebyshev expansion polynomials.
+    polynomial_minus_2: sim.GTensor = state
+    polynomial_minus_1: sim.GTensor = operator_rs(state, controls)
+
+    # Construct the starting expansion term.
+    expansion: sim.GTensor = (coefficients[0] * polynomial_minus_2) + (
+        coefficients[1] * polynomial_minus_1
+    )
+
+    # Construct the complete expansion.
+    for i in range(2, order):
+        polynomial_n: sim.GTensor = (
+            2 * operator_rs(polynomial_minus_1, controls)
+        ) - polynomial_minus_2
+        expansion += coefficients[i] * polynomial_n
+
+        polynomial_minus_2: sim.GTensor = polynomial_minus_1
+        polynomial_minus_1: sim.GTensor = polynomial_n
+
+    return expansion
 
 
 def ch_gauss_nodes(num_nodes: int) -> sim.RVector:
