@@ -492,3 +492,43 @@ class Hamiltonian(Protocol):
         """
 
         ...
+
+
+class Inhomogeneous(Protocol):
+    """
+    Interface class for representing an inhomogeneous term. The interface needs
+    a method that returns the inhomogeneous term. This class can be extended to
+    store system specific pre-computed terms and methods as required.
+
+    Attributes
+    ----------
+    domain : QuantumHilbertSpace
+        The discretised Hilbert space (domain) of the quantum system.
+    time_dependent : bool
+        A boolean flag that indicates whether the inhomogeneous term has
+        explicit time dependence.
+    """
+
+    domain: QuantumHilbertSpace
+    time_dependent: bool
+
+    def __call__(self, controls: Optional[Controls]) -> GTensor:
+        """
+        Calculates the inhomogeneous term. If the inhomogeneous term has
+        explicit time dependence, a set of controls should be passed.
+
+        Attributes
+        ----------
+        controls: Optional[Controls]
+            The controls which determine the structure of the inhomogeneous
+            term. This should be passed if the inhomogeneous term has explicit
+            time dependence.
+
+        Returns
+        -------
+        GTensor
+            The inhomogeneous term. This has shape (domain.num_points[0], ...,
+            domain.num_points[-1]).
+        """
+
+        ...
