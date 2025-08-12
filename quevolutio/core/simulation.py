@@ -86,7 +86,7 @@ Control: TypeAlias = float | complex | RTensor | CTensor
 Controls: TypeAlias = Control | Sequence[Control] | Mapping[str, Control]
 
 # Type alias for a callable that returns a set of controls, given a time.
-ControlsGenerator: TypeAlias = Callable[[float], Controls]
+TDSEControls: TypeAlias = Callable[[float], Controls]
 
 
 class QuantumConstants(Protocol):
@@ -514,7 +514,7 @@ class Inhomogeneous(Protocol):
 
         Attributes
         ----------
-        controls: Optional[Controls]
+        controls : Optional[Controls]
             The controls which determine the structure of the inhomogeneous
             term. This should be passed if the inhomogeneous term has explicit
             time dependence.
