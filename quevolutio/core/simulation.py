@@ -191,9 +191,8 @@ class HilbertSpace:
         self.position_axes: RVectorSeq = tuple(self.position_axes)
 
         # Define the position grids.
-        self.position_grids: RTensors = np.asarray(
+        self.position_grids: RTensorSeq = tuple(
             np.meshgrid(*self.position_axes, indexing="ij", sparse=True),
-            dtype=np.float64,
         )
 
         # Define the position deltas.
@@ -210,9 +209,8 @@ class HilbertSpace:
         self.wavevector_axes: RVectorSeq = tuple(self.wavevector_axes)
 
         # Define the wavevector grids.
-        self.wavevector_grids: RTensors = np.asarray(
+        self.wavevector_grids: RTensorSeq = tuple(
             np.meshgrid(*self.wavevector_axes, indexing="ij", sparse=True),
-            dtype=np.float64,
         )
 
         # Define the wavevector deltas.
@@ -280,7 +278,9 @@ class QuantumHilbertSpace(HilbertSpace):
         self.momentum_axes: RVectorSeq = tuple(self.momentum_axes)
 
         # Define the momentum grids & deltas.
-        self.momentum_grids: RTensors = self.constants.hbar * self.wavevector_grids
+        self.momentum_grids: RTensorSeq = tuple(
+            [self.constants.hbar * grid for grid in self.wavevector_grids]
+        )
         self.momentum_deltas: RVector = self.constants.hbar * self.wavevector_deltas
 
     def inner_product(self, bra: GTensor, ket: GTensor) -> complex:

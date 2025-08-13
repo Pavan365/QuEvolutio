@@ -455,9 +455,8 @@ def propagate(
         # Store controls.
         controls: Union[list[None], list[sim.Controls]] = [None] * len(t_nodes_current)
         if controls_func is not None:
-            controls: Union[list[None], list[sim.Controls]] = []
             for j, time in enumerate(t_nodes_current):
-                controls[j] = controls_func(time)
+                controls[j] = controls_func(time)  # type: ignore
 
         # Set up the inhomogeneous states (variable scoping).
         lambdas: sim.CVectors = np.zeros(1, dtype=np.complex128)
@@ -513,8 +512,8 @@ def propagate(
 
             ## NOTE: STEP 2.C.III
             # Calculate the Taylor-like derivative terms.
-            taylor_derivatives: sim.CVectors = (
-                conversion_matrix.T @ inhomogeneous_coefficients
+            taylor_derivatives: sim.CVectors = np.einsum(
+                "ij,jxy->ixy", conversion_matrix.T, inhomogeneous_coefficients
             )
 
             ## NOTE: STEP 2.C.IV
