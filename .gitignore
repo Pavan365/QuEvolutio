@@ -8,4 +8,6 @@ __pycache__
 .vscode
 
 # Ignore examples folder.
-examples
+examples/*
+!examples/example_*
+!examples/utils_*
