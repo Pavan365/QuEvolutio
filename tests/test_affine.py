@@ -27,7 +27,7 @@ def test_rescale_tensor():
     assert np.isclose(np.max(vector_rs), b)
 
     # Check that the rescaled vector is monotonically increasing (assumes sorted).
-    assert np.all(np.diff(vector_rs) >= 0.0)
+    assert np.all(np.diff(vector_rs) > 0.0)
 
     # Check that the affine transformation factors are correct.
     assert np.allclose(vector_rs, (scale * vector) + shift)
