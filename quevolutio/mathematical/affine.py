@@ -1,6 +1,6 @@
 """
-Mathematical functions for transforming the domains of mathematical objects
-using affine transformations.
+Functions for transforming the domains of mathematical objects using affine
+transformations.
 """
 
 # Import external modules.
