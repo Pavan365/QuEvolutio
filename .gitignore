@@ -1,3 +1,6 @@
+# Ignore Python .egg-info files.
+*.egg-info
+
 # Ignore Python cached files.
 __pycache__
 
