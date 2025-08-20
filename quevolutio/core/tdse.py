@@ -116,3 +116,41 @@ class Hamiltonian(Protocol):
         """
 
         ...
+
+
+class Source(Protocol):
+    """
+    Interface for representing a source term. This class can be extended to
+    contain system specific attributes, pre-computed terms and methods as
+    required.
+
+    Attributes
+    ----------
+    domain : QuantumHilbertSpace
+        The discretised Hilbert space (domain) of the quantum system.
+    time_dependent : bool
+        A boolean flag that indicates whether the source term has explicit time
+        dependence.
+    """
+
+    domain: QuantumHilbertSpace
+    time_dependent: bool
+
+    def __call__(self, controls: Optional[Controls] = None) -> GTensor:
+        """
+        Calculates the source term. If the source term has explicit time
+        dependence, a set of controls should be passed.
+
+        Attributes
+        ----------
+        controls : Optional[Controls]
+            The controls which determine the structure of the source term. This
+            should be passed if the source term has explicit time dependence.
+
+        Returns
+        -------
+        GTensor
+            The source term. This has shape (*domain.num_points)
+        """
+
+        ...
