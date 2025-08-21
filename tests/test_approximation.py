@@ -169,7 +169,7 @@ def test_ch_expansion():
 
 def test_ne_coefficients():
     """
-    Tests for the approx.ch_coefficients function.
+    Tests for the approx.ne_coefficients function.
     """
 
     # Define a known function.
