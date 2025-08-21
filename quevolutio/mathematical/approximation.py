@@ -76,7 +76,7 @@ def ch_lobatto_nodes(num_nodes: int) -> RVector:
 
 
 def ch_coefficients(
-    function_values: Union[GTensor, GTensors], dct_type: int
+    function_nodes: Union[GTensor, GTensors], dct_type: int
 ) -> Union[GTensor, GTensors]:
     """
     Calculates the expansion coefficients of a function being approximated
@@ -90,7 +90,7 @@ def ch_coefficients(
 
     Parameters
     ----------
-    function_values : Union[GTensor, GTensors]
+    function_nodes : Union[GTensor, GTensors]
         The function being approximated evaluated on either Chebyshev-Gauss or
         Chebyshev-Lobatto quadrature nodes. The expansion is taken to be along
         the zeroth axis.
@@ -106,11 +106,11 @@ def ch_coefficients(
     """
 
     # Store the number of expansion terms.
-    order: int = function_values.shape[0]
+    order: int = function_nodes.shape[0]
 
     # Perform the discrete cosine transform (DCT).
     coefficients: Union[GTensor, GTensors] = cast(
-        Union[GTensor, GTensors], dct(function_values, axis=0, type=dct_type, norm=None)
+        Union[GTensor, GTensors], dct(function_nodes, axis=0, type=dct_type, norm=None)
     )
 
     # Perform normalisation for DCT-I.
