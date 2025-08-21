@@ -127,7 +127,7 @@ def test_ch_coefficients():
     assert np.allclose(function_exact, function_approx)
 
 
-def test_ch_expansion() -> None:
+def test_ch_expansion():
     """
     Tests for the approx.ch_expansion function.
     """
@@ -165,3 +165,41 @@ def test_ch_expansion() -> None:
 
     # Check that the approximated solution is similar to the exact solution.
     assert np.allclose(exact, approximation)
+
+
+def test_ne_coefficients():
+    """
+    Tests for the approx.ch_coefficients function.
+    """
+
+    # Define a known function.
+    def function(x):
+        return x**3
+
+    # Define the Newtonian interpolation expansion.
+    def ne_expansion(x, nodes, coefficients):
+        order = coefficients.shape[0]
+
+        polynomial_n = np.ones(len(x), dtype=np.float64)
+        expansion = coefficients[0] * polynomial_n
+
+        for i in range(1, order):
+            polynomial_n *= x - nodes[i - 1]
+            expansion += coefficients[i] * polynomial_n
+
+        return expansion
+
+    # Construct the exact solution.
+    x_axis = np.linspace(-1.0, 1.0, 100, dtype=np.float64)
+    function_exact = function(x_axis)
+
+    # Construct the approximate solution using Chebyshev-Lobatto nodes.
+    order = 20
+    nodes = approx.ch_lobatto_nodes(order)
+
+    function_nodes = function(nodes)
+    function_coefficients = approx.ne_coefficients(nodes, function_nodes.reshape(-1, 1))
+    function_approx = ne_expansion(x_axis, nodes, function_coefficients)
+
+    # Check that the approximated solution is similar to the exact solution.
+    assert np.allclose(function_exact, function_approx)
