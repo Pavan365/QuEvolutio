@@ -21,7 +21,13 @@ import numpy as np
 from scipy.fft import dct
 
 # Import local modules.
-from quevolutio.core.aliases import RVector, GVector, GTensor, GTensors  # isort: skip
+from quevolutio.core.aliases import (  # isort: skip
+    RVector,
+    GVector,
+    RMatrix,
+    GTensor,
+    GTensors,
+)
 from quevolutio.core.tdse import Controls, Operator
 
 
@@ -183,6 +189,68 @@ def ch_expansion(
         polynomial_minus_1: GTensor = polynomial_n
 
     return expansion
+
+
+def ch_ta_conversion(order: int, time_min: float, time_max: float) -> RMatrix:
+    """
+    Calculates the square (lower triangular) conversion matrix for converting
+    Chebyshev expansion coefficients to Taylor-like derivatives across a time
+    interval. The matrix is intended for use with coefficients resulting from
+    sampling a function on Chebyshev-Lobatto nodes.
+
+    Parameters
+    ----------
+    order : int
+        The size of the conversion matrix. This corresponds to the highest
+        Taylor-like derivative produced from the matrix.
+    time_min : float
+        The lower bound of the time interval.
+    time_max : float
+        The upper bound of the time interval.
+
+    Returns
+    -------
+    coefficients : RMatrix
+        The conversion matrix.
+    """
+
+    # Calculate time interval information.
+    time_sum: float = time_min + time_max
+    time_dt: float = time_max - time_min
+
+    # Calculate recurring coefficients.
+    a: float = (2 * time_sum) / time_dt
+    b: float = 4 / time_dt
+
+    # Set up the conversion matrix.
+    conversion: RMatrix = np.zeros((order, order), dtype=np.float64)
+    conversion[0, 0] = 1.0
+
+    conversion[1, 0] = -time_sum / time_dt
+    conversion[1, 1] = 2 / time_dt
+
+    # Construct the complete matrix.
+    for i in range(2, order):
+        # Calculate the m = 0 term (Semi-Global Appendix C.2).
+        conversion[i, 0] = -(a * conversion[i - 1, 0]) - conversion[i - 2, 0]
+
+        # Calculate the 1 <= m <= n - 2 terms (Semi-Global Appendix C.2).
+        for j in range(1, i - 1):
+            conversion[i, j] = (
+                (b * conversion[i - 1, j - 1])
+                - (a * conversion[i - 1, j])
+                - conversion[i - 2, j]
+            )
+
+        # Calculate the m = n - 1 term (Semi-Global Appendix C.2).
+        conversion[i, i - 1] = (b * conversion[i - 1, i - 2]) - (
+            a * conversion[i - 1, i - 1]
+        )
+
+        # Calculate the m = n term (Semi-Global Appendix C.2).
+        conversion[i, i] = b * conversion[i - 1, i - 1]
+
+    return conversion
 
 
 def ne_coefficients(nodes: RVector, function_nodes: GTensors) -> GTensor:
