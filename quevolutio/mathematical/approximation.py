@@ -298,3 +298,51 @@ def ne_coefficients(nodes: RVector, function_nodes: GTensors) -> GTensor:
     ]
 
     return coefficients
+
+
+def ne_ta_conversion(time_axis: RVector) -> RMatrix:
+    """
+    Calculates the square (lower triangular) conversion matrix for converting
+    Newtonian interpolation expansion coefficients to Taylor-like derivatives
+    across a time interval. This function expects the time axis (time points)
+    to be in a domain of length four. The number of expansion terms is taken to
+    be the number of time points.
+
+    Parameters
+    ----------
+    time_axis : RVector
+        The time axis (time points) from which the Newtonian interpolation
+        expansion coefficients were generated. The time points should be from a
+        domain of length four (rescaled otherwise).
+
+    Returns
+    -------
+    conversion : RMatrix
+        The conversion matrix
+    """
+
+    # Store the number of expansion terms.
+    order: int = time_axis.shape[0]
+
+    # Account for the length four domain.
+    domain_factor: float = 4.0 / (time_axis[-1] - time_axis[0])
+
+    # Set up the conversion matrix.
+    conversion: RMatrix = np.zeros((order, order), dtype=np.float64)
+    conversion[0, 0] = 1.0
+
+    # Construct the complete matrix.
+    for i in range(1, order):
+        # Calculate the m = 0 term (Semi-Global Appendix C.1).
+        conversion[i, 0] = -domain_factor * time_axis[i - 1] * conversion[i - 1, 0]
+
+        # Calculate the 1 <= m <= n - 1 terms (Semi-Global Appendix C.1).
+        for j in range(1, i):
+            conversion[i, j] = domain_factor * (
+                conversion[i - 1, j - 1] - (time_axis[i - 1] * conversion[i - 1, j])
+            )
+
+        # Calculate the m = n term (Semi-Global Appendix C.1).
+        conversion[i, i] = domain_factor * conversion[i - 1, i - 1]
+
+    return conversion
