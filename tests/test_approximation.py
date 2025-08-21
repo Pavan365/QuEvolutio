@@ -6,7 +6,9 @@ Simple tests for the quevolutio.mathematical.approximation module.
 import numpy as np
 
 # Import tested modules.
+import quevolutio.mathematical.affine as affine
 import quevolutio.mathematical.approximation as approx
+from quevolutio.core.domain import HilbertSpace
 
 
 def test_ch_gauss_nodes():
@@ -123,3 +125,43 @@ def test_ch_coefficients():
 
     # Check that the approximated solution is similar to the exact solution.
     assert np.allclose(function_exact, function_approx)
+
+
+def test_ch_expansion() -> None:
+    """
+    Tests for the approx.ch_expansion function.
+    """
+
+    # Define the position operator.
+    domain = HilbertSpace(
+        1, np.array([100], dtype=np.int64), np.array([[-5.0, 5.0]], dtype=np.float64)
+    )
+    position = np.diag(domain.position_axes[0])
+
+    # Define a wavefunction.
+    wavefunction = np.exp(-domain.position_axes[0] ** 2)
+
+    # Define an operator function.
+    def function(x):
+        return x**2
+
+    # Calculate the exact solution.
+    exact = position @ (position @ wavefunction)
+
+    # Rescale the eigenvalue domain of the position operator to [-1, 1].
+    position_rs, scale, shift = affine.rescale_tensor(position, -1, 1)
+
+    # Define a function that returns the action of the position operator on a state.
+    def operator(state, controls=None):
+        return position_rs @ state
+
+    # Calculate the approximate solution.
+    order = 10
+    nodes = (approx.ch_gauss_nodes(order) - shift) / scale
+
+    function_nodes = function(nodes)
+    function_coefficients = approx.ch_coefficients(function_nodes[::-1], dct_type=2)
+    approximation = approx.ch_expansion(wavefunction, operator, function_coefficients)
+
+    # Check that the approximated solution is similar to the exact solution.
+    assert np.allclose(exact, approximation)
