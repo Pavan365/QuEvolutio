@@ -116,8 +116,8 @@ def ch_coefficients(
     # Perform normalisation for DCT-I.
     if dct_type == 1:
         coefficients /= order - 1
-        coefficients[0] = 2
-        coefficients[-1] = 2
+        coefficients[0] /= 2
+        coefficients[-1] /= 2
 
     # Perform normalisation for DCT-II.
     if dct_type == 2:
