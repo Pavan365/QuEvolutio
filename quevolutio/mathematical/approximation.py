@@ -183,3 +183,50 @@ def ch_expansion(
         polynomial_minus_1: GTensor = polynomial_n
 
     return expansion
+
+
+def ne_coefficients(nodes: RVector, function_nodes: GTensors) -> GTensor:
+    """
+    Calculates the expansion coefficients of a function being approximated
+    using Newtonian interpolation polynomials using divided differences. The
+    function being approximated should be evaluated on nodes in the target
+    domain.
+
+    Parameters
+    ----------
+    nodes : RVector
+        The nodes that the function being approximated is evaluated on.
+    function_nodes : GTensors
+        The function being approximated evaluated on nodes in the target
+        domain. This is expected to be at least 2 dimensional, where the
+        expansion is taken to be along the zeroth axis.
+
+    Returns
+    -------
+    coefficients : GTensor
+        The Newtonian interpolation expansion coefficients.
+    """
+
+    # Store the number of expansion terms.
+    order: int = nodes.shape[0]
+
+    # Set up the divided differences tables.
+    tables: GTensor = cast(
+        GTensor,
+        np.zeros((order, order, *function_nodes.shape[1:]), dtype=function_nodes.dtype),
+    )
+    tables[0] = function_nodes
+
+    # Construct the divided differences tables (upper triangular).
+    for i in range(1, order):
+        for j in range(i, order):
+            tables[i, j] = (tables[i - 1, j] - tables[i - 1, j - 1]) / (
+                nodes[j] - nodes[j - i]
+            )
+
+    # Store the Newtonian interpolation coefficients.
+    coefficients: GTensor = tables[
+        np.arange(order, dtype=np.int32), np.arange(order, dtype=np.int32)
+    ]
+
+    return coefficients
