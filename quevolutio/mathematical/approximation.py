@@ -14,14 +14,15 @@ References
 """
 
 # Import standard modules.
-from typing import Union, cast
+from typing import Optional, Union, cast
 
 # Import external modules.
 import numpy as np
 from scipy.fft import dct
 
 # Import local modules.
-from quevolutio.core.aliases import RVector, GTensor, GTensors
+from quevolutio.core.aliases import RVector, GVector, GTensor, GTensors  # isort: skip
+from quevolutio.core.tdse import Controls, Operator
 
 
 def ch_gauss_nodes(num_nodes: int) -> RVector:
@@ -124,3 +125,61 @@ def ch_coefficients(
         coefficients[0] /= 2
 
     return coefficients
+
+
+def ch_expansion(
+    state: GTensor,
+    operator: Operator,
+    coefficients: GVector,
+    controls: Optional[Controls] = None,
+) -> GTensor:
+    """
+    Calculates the Chebyshev expansion of an operator acting on a state through
+    the recursion relation of Chebyshev polynomials (first kind). The number of
+    expansion terms is taken to be the number of coefficients.
+
+    Parameters
+    ----------
+    state : GTensor
+        The state being acted on by the operator.
+    operator : Operator
+        The operator being approximated. This should be a callable that returns
+        the action of the operator on a state, rescaled to the domain [-1, 1].
+    coefficients : GVector
+        The Chebyshev expansion coefficients. The coefficients are expected to
+        be the cosine transformed values of values generated from evaluating a
+        function of the operator on Chebyshev-Gauss or Chebyshev-Lobatto nodes.
+    controls : Optional[Controls]
+        The controls that determine the structure of the operator. This should
+        be passed if the operator has explicit time dependence.
+
+    Returns
+    -------
+    expansion : GTensor
+        The expansion term resulting from the Chebyshev expansion of the
+        operator acting on the state.
+    """
+
+    # Store the number of expansion terms.
+    order: int = coefficients.shape[0]
+
+    # Calculate the first two Chebyshev expansion polynomials.
+    polynomial_minus_2: GTensor = state
+    polynomial_minus_1: GTensor = operator(state, controls)
+
+    # Construct the starting expansion term.
+    expansion: GTensor = (coefficients[0] * polynomial_minus_2) + (
+        coefficients[1] * polynomial_minus_2
+    )
+
+    # Construct the complete expansion.
+    for i in range(2, order):
+        polynomial_n: GTensor = (
+            2 * operator(polynomial_minus_1, controls)
+        ) - polynomial_minus_2
+        expansion += coefficients[i] * polynomial_n
+
+        polynomial_minus_2: GTensor = polynomial_minus_1
+        polynomial_minus_1: GTensor = polynomial_n
+
+    return expansion
