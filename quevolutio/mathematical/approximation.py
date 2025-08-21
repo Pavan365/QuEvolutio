@@ -82,8 +82,8 @@ def ch_coefficients(
     Calculates the expansion coefficients of a function being approximated
     using Chebyshev polynomials (first kind) using the discrete cosine
     transform (DCT). The function being approximated should be evaluated on
-    either Chebyshev-Gauss or Chebyshev-Lobatto quadrature nodes.
-
+    either Chebyshev-Gauss or Chebyshev-Lobatto quadrature nodes, in descending
+    order.
 
     + DCT-I     : Chebyshev-Lobatto
     + DCT-II    : Chebyshev-Gauss
