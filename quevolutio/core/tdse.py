@@ -4,7 +4,7 @@ system.
 """
 
 # Import standard modules.
-from typing import Mapping, Optional, Protocol, Sequence, TypeAlias, cast
+from typing import Callable, Mapping, Optional, Protocol, Sequence, TypeAlias, cast
 
 # Import local modules.
 from quevolutio.core.aliases import CTensor, GTensor
@@ -13,6 +13,9 @@ from quevolutio.core.domain import QuantumHilbertSpace
 # Type aliases for controls (time-dependent parameters).
 Control: TypeAlias = float | complex | GTensor
 Controls: TypeAlias = Control | Sequence[Control] | Mapping[str, Control]
+
+# Type alias for a callable that returns the action of an operator on a state.
+Operator: TypeAlias = Callable[[GTensor, Optional[Controls]], GTensor]
 
 
 class Hamiltonian(Protocol):
