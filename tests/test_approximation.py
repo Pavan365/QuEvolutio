@@ -197,7 +197,7 @@ def test_ch_ta_conversion():
     order = 5
 
     # Calculate the exact derivatives at the minimum point of the domain.
-    # Taken into account the factors of (m!) in the Taylor expansion.
+    # Take into account the factors of (m!) in the Taylor expansion.
     exact = np.array(
         [
             function(x_min),
@@ -259,3 +259,59 @@ def test_ne_coefficients():
 
     # Check that the approximated solution is similar to the exact solution.
     assert np.allclose(function_exact, function_approx)
+
+
+def test_ne_ta_conversion():
+    """
+    Tests for the approx.ne_ta_conversion function.
+    """
+
+    # Define a known function.
+    def function(x):
+        return (3 * (x**3)) + (2 * (x**2)) + 1
+
+    # Define the derivatives of the function.
+    def function_dx_01(x):
+        return (9 * (x**2)) + (4 * x)
+
+    def function_dx_02(x):
+        return (18 * x) + 4
+
+    def function_dx_03(x):
+        return 18.0
+
+    def function_dx_04(x):
+        return 0.0
+
+    # Define a domain.
+    x_min, x_max = 0.0, 1.0
+
+    # Define the number of derivatives.
+    order = 5
+
+    # Calculate the exact derivatives at the minimum point of the domain.
+    # Take into account the factors of (m!) in the Taylor expansion.
+    exact = np.array(
+        [
+            function(x_min),
+            function_dx_01(x_min) / 1,
+            function_dx_02(x_min) / 2,
+            function_dx_03(x_min) / factorial(3),
+            function_dx_04(x_min) / factorial(4),
+        ],
+        dtype=np.float64,
+    )
+
+    # Calculate the approximate Taylor-like derivatives.
+    nodes = approx.ch_lobatto_nodes(order)
+    nodes, scale, shift = affine.rescale_tensor(nodes, x_min, x_max)
+    nodes_range_four = (4.0 / (x_max - x_min)) * nodes
+
+    function_nodes = function(nodes)
+    function_coefficients = approx.ne_coefficients(nodes_range_four, function_nodes)
+
+    conversion_matrix = approx.ne_ta_conversion(nodes)
+    derivatives = conversion_matrix.T @ function_coefficients
+
+    # Check that the approximated solution is similar to the exact solution.
+    assert np.allclose(exact, derivatives)
