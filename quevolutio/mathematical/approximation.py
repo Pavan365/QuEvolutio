@@ -212,6 +212,11 @@ def ch_ta_conversion(order: int, time_min: float, time_max: float) -> RMatrix:
     -------
     coefficients : RMatrix
         The conversion matrix.
+
+    Notes
+    -----
+    The conversion matrix should be transposed when applied to the Chebyshev
+    expansion coefficients.
     """
 
     # Calculate time interval information.
@@ -304,21 +309,25 @@ def ne_ta_conversion(time_axis: RVector) -> RMatrix:
     """
     Calculates the square (lower triangular) conversion matrix for converting
     Newtonian interpolation expansion coefficients to Taylor-like derivatives
-    across a time interval. This function expects the time axis (time points)
-    to be in a domain of length four. The number of expansion terms is taken to
-    be the number of time points.
+    across a time interval. In particular, the conversion matrix is defined to
+    work with coefficients generated from nodes in a domain of length four. The
+    number of expansion terms is taken to be the number of time points.
 
     Parameters
     ----------
     time_axis : RVector
         The time axis (time points) from which the Newtonian interpolation
-        expansion coefficients were generated. The time points should be from a
-        domain of length four (rescaled otherwise).
+        expansion coefficients were generated.
 
     Returns
     -------
     conversion : RMatrix
         The conversion matrix
+
+    Notes
+    -----
+    The conversion matrix should be transposed when applied to the Newtonian
+    interpolation expansion coefficients.
     """
 
     # Store the number of expansion terms.
