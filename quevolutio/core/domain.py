@@ -150,7 +150,7 @@ class QuantumHilbertSpace(HilbertSpace):
     means that the momentum values are not centred.
     """
 
-    def __ini__(
+    def __init__(
         self,
         num_dimensions: int,
         num_points: IVector,
