@@ -181,7 +181,7 @@ class SemiGlobalTDSE(TDSE):
         return cast(CTensor, self.prefactor * difference)
 
 
-class SemiGlobalPropagator:
+class SemiGlobal:
     """
     Represents the Semi-Global propagation scheme. This scheme is intended to
     be used for quantum systems with explicit time-dependence.

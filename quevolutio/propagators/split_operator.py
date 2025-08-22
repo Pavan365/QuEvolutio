@@ -25,7 +25,7 @@ from quevolutio.core.domain import TimeGrid
 from quevolutio.core.tdse import HamiltonianSeparable, Controls, TDSEControls
 
 
-class SplitOperatorPropagator:
+class SplitOperator:
     """
     Represents the second-order Split-Operator propagation scheme. This scheme
     is intended to be used for quantum systems with a separable Hamiltonian.
