@@ -7,7 +7,7 @@ system.
 from typing import Callable, Mapping, Optional, Protocol, Sequence, TypeAlias, cast
 
 # Import local modules.
-from quevolutio.core.aliases import CTensor, GTensor
+from quevolutio.core.aliases import CTensor, GTensor, GVectorSeq
 from quevolutio.core.domain import QuantumHilbertSpace
 
 # Type aliases for controls (time-dependent parameters).
@@ -119,6 +119,79 @@ class Hamiltonian(Protocol):
         -------
         GTensor
             The result of acting the potential energy operator on the state.
+        """
+
+        ...
+
+
+class HamiltonianSeparable(Protocol):
+    """
+    Interface for representing a separable Hamiltonian. This class can be
+    extended to contain system specific attributes, pre-computed terms and
+    methods as required.
+
+    Attributes
+    ----------
+    domain : QuantumHilbertSpace
+        The discretised Hilbert space (domain) of the quantum system.
+    time_dependent : bool
+        A boolean flag that indicates whether the Hamiltonian has explicit time
+        dependence.
+    ke_time_dependent : bool
+        A boolean flag that indicates whether the KE operator has explicit time
+        dependence.
+    pe_time_dependent : bool
+        A boolean flag that indicates whether the PE operator has explicit time
+        dependence.
+    """
+
+    domain: QuantumHilbertSpace
+    time_dependent: bool
+    ke_time_dependent: bool
+    pe_time_dependent: bool
+
+    def ke_operator(self, controls: Optional[Controls] = None) -> GVectorSeq:
+        """
+        Calculates the kinetic energy diagonal(s) in momentum space. A sequence
+        of vectors is returned, where each vector corresponds to each dimension
+        in the domain. If the kinetic energy operator has explicit time
+        dependence, a set of controls should be passed.
+
+        Parameters
+        ----------
+        controls : Optional[Controls]
+            The controls which determine the structure of the Hamiltonian. This
+            should be passed if the kinetic energy operator has explicit time
+            dependence.
+
+        Returns
+        -------
+        GVectorSeq
+            The kinetic energy diagonal(s) in momentum space. This is a
+            sequence of GVector, with length (domain.num_dimensions).
+        """
+
+        ...
+
+    def pe_operator(self, controls: Optional[Controls] = None) -> GVectorSeq:
+        """
+        Calculates the potential energy diagonal(s) in position space. A
+        sequence of vectors is returned, where each vector corresponds to each
+        dimension in the domain. If the potential energy operator has explicit
+        time dependence, a set of controls should be passed.
+
+        Parameters
+        ----------
+        controls : Optional[Controls]
+            The controls which determine the structure of the Hamiltonian. This
+            should be passed if the potential energy operator has explicit time
+            dependence.
+
+        Returns
+        -------
+        GVectorSeq
+            The potential energy diagonal(s) in position space. This is a
+            sequence of GVector, with length (domain.num_dimensions).
         """
 
         ...
