@@ -14,6 +14,9 @@ from quevolutio.core.domain import QuantumHilbertSpace
 Control: TypeAlias = float | complex | GTensor
 Controls: TypeAlias = Control | Sequence[Control] | Mapping[str, Control]
 
+# Type alias for a callable that returns a set of controls, given a time.
+TDSEControls: TypeAlias = Callable[[float], Controls]
+
 # Type alias for a callable that returns the action of an operator on a state.
 Operator: TypeAlias = Callable[[GTensor, Optional[Controls]], GTensor]
 
