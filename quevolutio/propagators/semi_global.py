@@ -486,3 +486,239 @@ class SemiGlobalPropagator:
             ) / i
 
         return states
+
+    def propagate(
+        self,
+        state: GTensor,
+        controls_fn: Optional[TDSEControls] = None,
+        diagnostics: bool = False,
+    ) -> CTensors:
+        """
+        Propagates a state with respect to the time-dependent Schrödinger
+        equation (TDSE) using the Semi-Global propagation scheme. This scheme
+        is intended to be used for systems with explicit time-dependence.
+
+        Parameters
+        ----------
+        state : GTensor
+            The state to propagate with respect to the TDSE.
+        controls_fn : Optional[TDSEControls]
+            A callable that generates the controls which determine the
+            structure of the TDSE at a given time. This should be passed if the
+            TDSE has explicit time dependence.
+        diagnostics : bool
+            A boolean flag that indicates whether to output diagnostic
+            information regarding convergence during propagation.
+
+        Returns
+        -------
+        states : CTensors
+            The propagated states.
+        """
+
+        # Ensure that a controls callable is passed for a time-dependent system.
+        if self._system.time_dependent and controls_fn is None:
+            raise ValueError("invalid controls callable")
+        assert controls_fn is not None
+
+        # Create an array to store the propagated states.
+        states: CTensors = np.zeros(
+            self._time_domain.num_points,
+            *self._system.domain.num_points,
+            dtype=np.complex128,
+        )
+        states[0] = state.copy()
+
+        # Set the guess states for the first time interval.
+        guess_states_curr: CTensors = np.zeros(
+            (self._order_m, *self._system.domain.num_points), dtype=np.complex128
+        )
+        guess_states_curr[:] = state.copy()
+
+        ## NOTE: SEMI-GLOBAL STEP 2
+        # Propagate the state.
+        for i in range(self._time_domain.num_points - 1):
+            ## NOTE: SEMI-GLOBAL STEP 2.A
+            # Store the time interval information.
+            time_start_idx: int = i * (self._order_m - 1)
+            time_final_idx: int = (self._order_m - 1) + time_start_idx
+
+            ## NOTE: LOCAL PRE-COMPUTES (TIME-INTERVAL SPECIFIC)
+            # Store the Chebyshev-Lobatto nodes.
+            time_nodes_curr: RVector = self._time_nodes[
+                time_start_idx : (time_final_idx + 1)
+            ]
+            time_mid_idx: int = self._order_m // 2
+
+            # Store the controls for the time interval.
+            controls: list[Optional[Controls]] = [None] * self._order_m
+            if self._system.time_dependent:
+                for j, time in enumerate(time_nodes_curr):
+                    controls[j] = controls_fn(time)
+
+            # Set up the expansion states (variable scoping).
+            expansion_states_curr: Optional[CTensors] = None
+
+            # Set the starting convergence.
+            convergence: float = np.inf
+
+            # Define a counter and set the maximum number of iterations.
+            count: int = 0
+            max_count: int = 20
+
+            ## NOTE: SEMI-GLOBAL STEP 2.C
+            # Propagate the wavefunction until convergence is reached.
+            while convergence > self._tolerance and count < max_count:
+                ## NOTE: STEP 2.C.I
+                # Set up the inhomogeneous terms.
+                inhomogeneous_values: CTensors = np.zeros(
+                    (self._order_m, *self.system.domain.num_points), dtype=np.complex128
+                )
+                for j in range(self._order_m):
+                    # Time-dependent Hamiltonian term.
+                    if self._system.hamiltonian.time_dependent:
+                        inhomogeneous_values[j] = self._system.homogeneous_term_dt(
+                            guess_states_curr[j],
+                            cast(Controls, controls[j]),
+                            cast(Controls, controls[time_mid_idx]),
+                        )
+
+                    # Source term.
+                    if self._system.source is not None:
+                        inhomogeneous_values[j] += self._system.source_term(controls[j])
+
+                ## NOTE: SEMI-GLOBAL STEP 2.C.II
+                # Calculate the expansion coefficients of the inhomogeneous terms.
+                inhomogeneous_coefficients: CTensors = np.zeros(
+                    (self._order_m, *self._system.domain.num_points),
+                    dtype=np.complex128,
+                )
+                # Chebyshev expansion coefficients.
+                if self._approximation == ApproximationBasis.CHEBYSHEV:
+                    inhomogeneous_coefficients = cast(
+                        CTensors,
+                        approx.ch_coefficients(inhomogeneous_values[::-1], dct_type=1),
+                    )
+
+                # Newtonian interpolation expansion coefficients.
+                else:
+                    # Rescale the current time nodes to domain of length four.
+                    nodes_range_four: RVector = (
+                        4.0 / self._time_domain.time_dt
+                    ) * time_nodes_curr
+
+                    inhomogeneous_coefficients: CTensors = cast(
+                        CTensors,
+                        approx.ne_coefficients(nodes_range_four, inhomogeneous_values),
+                    )
+
+                ## NOTE: SEMI-GLOBAL STEP 2.C.III
+                # Calculate the Taylor-like derivative terms.
+                inhomogeneous_derivatives: CTensors = cast(
+                    CTensors,
+                    np.tensordot(
+                        self._conversion_matrix, inhomogeneous_coefficients, axes=(1, 0)
+                    ),
+                )
+
+                ## NOTE: SEMI-GLOBAL STEP 2.C.IV
+                # Calculate the expansion states.
+                expansion_states_curr: Optional[CTensors] = self.expansion_states(
+                    guess_states_curr[0],
+                    inhomogeneous_derivatives,
+                    controls[time_mid_idx],
+                )
+
+                ## NOTE: SEMI-GLOBAL STEP 2.C.V
+                # Store the previous guess propagated state.
+                guess_state_old: CVector = guess_states_curr[-1].copy()
+
+                ## NOTE: SEMI-GLOBAL STEP 2.C.VI
+                # Build the next set of guess states.
+                for j in range(1, self._order_m):
+                    # Store the time interval information.
+                    time_dt_m = self._time_nodes[j]
+
+                    # Calculate the Taylor-like expansion term.
+                    expansion_term: CTensor = np.zeros(
+                        *self._system.domain.num_points, dtype=np.complex128
+                    )
+                    for k in range(self._order_m):
+                        expansion_term += (time_dt_m**k) * expansion_states_curr[k]
+
+                    # Calculate the correction term.
+                    correction_term: CTensor = cast(
+                        CTensor,
+                        approx.ch_expansion(
+                            expansion_states_curr[-1],
+                            self._system.homogeneous_term_rs,
+                            self._correction_coefficients_curr[j],
+                            controls[time_mid_idx],
+                        ),
+                    )
+
+                    # Store the new guess state.
+                    guess_states_curr[j] = expansion_term + correction_term
+
+                ## NOTE: SEMI-GLOBAL STEP 2.C.VII
+                # Calculate the convergence.
+                guess_state_new: CTensor = guess_states_curr[-1].copy()
+                convergence: float = cast(
+                    float,
+                    np.linalg.norm(guess_state_new - guess_state_old)
+                    / np.linalg.norm(guess_state_old),
+                )
+
+                # Update the number of iterations.
+                count += 1
+
+                # NOTE: DIAGNOSTIC
+                # Print diagnostic information.
+                if diagnostics:
+                    print(f"Time Index: {i} \t Iteration: {count}")
+                    print(f"Convergence: {convergence:.5e}")
+
+            # If convergence failed, raise an error.
+            if count >= max_count:
+                raise ValueError("convergence failed")
+
+            ## NOTE: SEMI-GLOBAL STEPS 2.D & 2.E
+            # Store the propagated state.
+            states[i + 1] = guess_states_curr[-1].copy()
+
+            ## NOTE: SEMI-GLOBAL STEP 2.F
+            # Calculate the guess states for the next time interval.
+            if i < self._time_domain.num_points - 2:
+                # Assert for expansion states (variable scoping).
+                assert expansion_states_curr is not None
+
+                # Set the first guess state.
+                guess_states_curr[0] = guess_states_curr[-1].copy()
+
+                # Build the next set of guess states.
+                for j in range(1, self._order_m):
+                    # Store the time interval information.
+                    time_dt_m = self._time_nodes[j] + self._time_domain.time_dt
+
+                    # Calculate the Taylor-like expansion term.
+                    expansion_term: CTensor = np.zeros(
+                        *self._system.domain.num_points, dtype=np.complex128
+                    )
+                    for k in range(self._order_m):
+                        expansion_term += (time_dt_m**k) * expansion_states_curr[k]
+
+                    # Calculate the correction term.
+                    correction_term: CTensor = cast(
+                        CTensor,
+                        approx.ch_expansion(
+                            expansion_states_curr[-1],
+                            self._system.homogeneous_term_rs,
+                            self._correction_coefficients_curr[j],
+                            controls[time_mid_idx],
+                        ),
+                    )
+
+                    # Store the new guess state.
+                    guess_states_curr[j] = expansion_term + correction_term
+
+        return states
