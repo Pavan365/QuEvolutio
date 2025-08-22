@@ -180,8 +180,6 @@ class TDSE:
 
     Attributes
     ----------
-    Parameters
-    ----------
     domain : QuantumHilbertSpace
         The discretised Hilbert space (domain) of the quantum system.
     hamiltonian : Hamiltonian
@@ -189,6 +187,11 @@ class TDSE:
     source : Optional[Source]
         The source term of the quantum system. This is an optional term that
         can be excluded.
+    prefactor : complex
+        The constant that multiplies the homogeneous term in the TDSE.
+    time_dependent : bool
+        A boolean flag that indicates whether the TDSE has explicit time
+        dependence.
     """
 
     def __init__(
@@ -204,6 +207,14 @@ class TDSE:
 
         # Calculate the homogeneous pre-factor.
         self.prefactor: complex = -1j / self.domain.constants.hbar
+
+        # Determine the time-dependence of the TDSE.
+        if self.hamiltonian.time_dependent or (
+            self.source is not None and self.source.time_dependent
+        ):
+            self.time_dependent: bool = True
+        else:
+            self.time_dependent: bool = False
 
     def __call__(self, state: GTensor, controls: Optional[Controls] = None) -> CTensor:
         """
