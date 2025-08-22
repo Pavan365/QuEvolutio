@@ -1,7 +1,7 @@
 """
 Implementation of the Semi-Global propagation scheme for the time-dependent
-Schrödinger equation. This scheme is intended to be used for quantum systems
-with explicit time-dependence.
+Schrödinger equation (TDSE). This scheme is intended to be used for quantum
+systems with explicit time-dependence.
 
 References
 ----------
@@ -497,8 +497,7 @@ class SemiGlobal:
     ) -> CTensors:
         """
         Propagates a state with respect to the time-dependent Schrödinger
-        equation (TDSE) using the Semi-Global propagation scheme. This scheme
-        is intended to be used for systems with explicit time-dependence.
+        equation (TDSE) using the Semi-Global propagation scheme.
 
         Parameters
         ----------

@@ -1,7 +1,7 @@
 """
-Implementation of the 2nd-order Split-Operator (Split-Step Fourier) propagation
-scheme for the time-dependent Schrödinger equation (TDSE). This scheme is
-intended to be used for quantum systems with a separable Hamiltonian.
+Implementation of the 2nd-order Split-Operator (Split-Step) propagation scheme
+for the time-dependent Schrödinger equation (TDSE). This scheme is intended to
+be used for quantum systems with a separable Hamiltonian.
 
 References
 ----------
@@ -27,7 +27,7 @@ from quevolutio.core.tdse import HamiltonianSeparable, Controls, TDSEControls
 
 class SplitOperator:
     """
-    Represents the second-order Split-Operator propagation scheme. This scheme
+    Represents the 2nd-order Split-Operator propagation scheme. This scheme
     is intended to be used for quantum systems with a separable Hamiltonian.
 
     Parameters
@@ -115,9 +115,7 @@ class SplitOperator:
     ) -> CTensors:
         """
         Propagates a state with respect to the time-dependent Schrödinger
-        equation (TDSE) using the second-order Split-Operator propagation
-        scheme. This scheme is intended to be used for quantum systems with
-        a separable Hamiltonian.
+        equation (TDSE) using the 2nd-order Split-Operator propagation scheme.
 
         Parameters
         ----------
