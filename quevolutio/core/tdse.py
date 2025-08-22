@@ -150,7 +150,7 @@ class HamiltonianSeparable(Protocol):
     ke_time_dependent: bool
     pe_time_dependent: bool
 
-    def ke_operator(self, controls: Optional[Controls] = None) -> GVectorSeq:
+    def ke_diagonals(self, controls: Optional[Controls] = None) -> GVectorSeq:
         """
         Calculates the kinetic energy diagonal(s) in momentum space. A sequence
         of vectors is returned, where each vector corresponds to each dimension
@@ -173,7 +173,7 @@ class HamiltonianSeparable(Protocol):
 
         ...
 
-    def pe_operator(self, controls: Optional[Controls] = None) -> GVectorSeq:
+    def pe_diagonals(self, controls: Optional[Controls] = None) -> GVectorSeq:
         """
         Calculates the potential energy diagonal(s) in position space. A
         sequence of vectors is returned, where each vector corresponds to each
