@@ -209,12 +209,9 @@ class TDSE:
         self.prefactor: complex = -1j / self.domain.constants.hbar
 
         # Determine the time-dependence of the TDSE.
-        if self.hamiltonian.time_dependent or (
+        self.time_dependent: bool = self.hamiltonian.time_dependent or (
             self.source is not None and self.source.time_dependent
-        ):
-            self.time_dependent: bool = True
-        else:
-            self.time_dependent: bool = False
+        )
 
     def __call__(self, state: GTensor, controls: Optional[Controls] = None) -> CTensor:
         """
