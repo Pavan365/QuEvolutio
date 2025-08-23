@@ -48,13 +48,13 @@ class SplitOperator:
     -------------------
     _time_dt_half : float
         The half spacing between points in the time axis.
-    _prefactor : complex
+    homogeneous_factor : complex
         The constant that multiplies the homogeneous term in the time-dependent
         Schrödinger equation (TDSE).
-    _prefactor_full_step : complex
+    _full_step_factor : complex
         The constant used in the time-evolution operator when propagating a
         full-step.
-    _prefactor_half_step : complex
+    _half_step_factor : complex
         The constant used in the time-evolution operator when propagating a
         half-step.
     _ke_operator : Optional[GTensor]
@@ -76,11 +76,13 @@ class SplitOperator:
         self._time_dt_half: float = self._time_domain.time_dt / 2.0
 
         # Calculate the homogeneous pre-factor (TDSE).
-        self._prefactor: complex = -1j / self._hamiltonian.domain.constants.hbar
+        self.homogeneous_factor: complex = -1j / self._hamiltonian.domain.constants.hbar
 
         # Calculate the time-evolution operator pre-factors.
-        self._prefactor_full_step: complex = self._prefactor * self._time_domain.time_dt
-        self._prefactor_half_step: complex = self._prefactor * self._time_dt_half
+        self._full_step_factor: complex = (
+            self.homogeneous_factor * self._time_domain.time_dt
+        )
+        self._half_step_factor: complex = self.homogeneous_factor * self._time_dt_half
 
         # Pre-compute the kinetic energy and potential energy operators if possible.
         self._ke_operator: Optional[GTensor] = None
@@ -179,7 +181,7 @@ class SplitOperator:
                 CTensor, self._hamiltonian.domain.momentum_space(state_curr)
             )
             state_next: CTensor = (
-                np.exp(self._prefactor_half_step * self._ke_operator) * state_next
+                np.exp(self._half_step_factor * self._ke_operator) * state_next
             )
 
             # Propagate a full-step in position space.
@@ -187,7 +189,7 @@ class SplitOperator:
                 CTensor, self._hamiltonian.domain.position_space(state_next)
             )
             state_next: CTensor = (
-                np.exp(self._prefactor_full_step * self._pe_operator) * state_next
+                np.exp(self._full_step_factor * self._pe_operator) * state_next
             )
 
             # Propagate a half-step in momentum space.
@@ -195,7 +197,7 @@ class SplitOperator:
                 CTensor, self._hamiltonian.domain.momentum_space(state_next)
             )
             state_next: CTensor = (
-                np.exp(self._prefactor_half_step * self._ke_operator) * state_next
+                np.exp(self._half_step_factor * self._ke_operator) * state_next
             )
 
             # Convert to position space and store the propagated state.

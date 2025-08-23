@@ -117,7 +117,7 @@ class Chebyshev:
 
     Internal Attributes
     -------------------
-    _prefactor : complex
+    _homogeneous_factor : complex
         The constant that multiplies the homogeneous term in the time-dependent
         Schrödinger equation (TDSE).
     _phase_factor : complex
@@ -137,11 +137,13 @@ class Chebyshev:
         self._order_k: int = order_k
 
         # Calculate the homogeneous pre-factor (TDSE).
-        self._prefactor: complex = -1j / self._hamiltonian.domain.constants.hbar
+        self._homogeneous_factor: complex = (
+            -1j / self._hamiltonian.domain.constants.hbar
+        )
 
         # Pre-compute the global phase factor applied at each propagation step.
         self._phase_factor: complex = np.exp(
-            self._prefactor
+            self._homogeneous_factor
             * self.time_domain.time_dt
             * self._hamiltonian.spectrum_centre
         )

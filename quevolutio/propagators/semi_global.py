@@ -133,7 +133,7 @@ class SemiGlobalTDSE(TDSE):
             self.hamiltonian(state, controls) - (self.spectrum_centre * state)
         ) / self.spectrum_half_span
 
-        return cast(CTensor, self.prefactor * homogeneous_rs)
+        return cast(CTensor, self.homogeneous_factor * homogeneous_rs)
 
     def homogeneous_term_dt(
         self, state: GTensor, controls_1: Controls, controls_2: Controls
@@ -178,7 +178,7 @@ class SemiGlobalTDSE(TDSE):
         # Calculate the difference.
         difference: GTensor = action(state, controls_1) - action(state, controls_2)
 
-        return cast(CTensor, self.prefactor * difference)
+        return cast(CTensor, self.homogeneous_factor * difference)
 
 
 class SemiGlobal:
@@ -325,7 +325,7 @@ class SemiGlobal:
         # For calculating the Chebyshev expansion coefficients of the correction operator.
         correction_nodes: CVector = cast(
             CTensor,
-            self._system.prefactor
+            self._system.homogeneous_factor
             * affine.rescale_tensor(
                 cg_nodes,
                 self._system.hamiltonian.eigenvalue_min,

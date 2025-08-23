@@ -260,7 +260,7 @@ class TDSE:
     source : Optional[Source]
         The source term of the quantum system. This is an optional term that
         can be excluded.
-    prefactor : complex
+    homogeneous_factor : complex
         The constant that multiplies the homogeneous term in the TDSE.
     time_dependent : bool
         A boolean flag that indicates whether the TDSE has explicit time
@@ -279,7 +279,7 @@ class TDSE:
         self.source: Optional[Source] = source
 
         # Calculate the homogeneous pre-factor.
-        self.prefactor: complex = -1j / self.domain.constants.hbar
+        self.homogeneous_factor: complex = -1j / self.domain.constants.hbar
 
         # Determine the time-dependence of the TDSE.
         self.time_dependent: bool = self.hamiltonian.time_dependent or (
@@ -338,7 +338,9 @@ class TDSE:
             The homogeneous term of the TDSE.
         """
 
-        return cast(CTensor, self.prefactor * self.hamiltonian(state, controls))
+        return cast(
+            CTensor, self.homogeneous_factor * self.hamiltonian(state, controls)
+        )
 
     def source_term(self, controls: Optional[Controls] = None) -> Optional[GTensor]:
         """
