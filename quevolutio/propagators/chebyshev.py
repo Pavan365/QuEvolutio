@@ -199,7 +199,6 @@ class Chebyshev:
         # Ensure that a controls callable is passed for a time-dependent system.
         if self._hamiltonian.time_dependent and controls_fn is None:
             raise ValueError("invalid controls callable")
-        assert controls_fn is not None
 
         # Create an array to store the propagated states.
         states: CTensors = np.zeros(
@@ -215,11 +214,13 @@ class Chebyshev:
 
             # If the Hamiltonian has explicit time dependence.
             # Calculate the controls at the start of the time step.
-            controls: Optional[Controls] = (
-                controls_fn(self._time_domain.time_axis[i])
-                if self._hamiltonian.time_dependent
-                else None
-            )
+            controls: Optional[Controls] = None
+            if self.hamiltonian.time_dependent:
+                # Calculate the controls at the start of the time step.
+                assert controls_fn is not None
+                controls: Optional[Controls] = controls_fn(
+                    self._time_domain.time_axis[i]
+                )
 
             # Calculate the Chebyshev expansion of the time-evolution operator.
             # Acting on the current state.

@@ -137,7 +137,6 @@ class SplitOperator:
         # Ensure that a controls callable is passed for a time-dependent system.
         if self._hamiltonian.time_dependent and controls_fn is None:
             raise ValueError("invalid controls callable")
-        assert controls_fn is not None
 
         # Create an array to store the propagated states.
         states: CTensors = np.zeros(
@@ -155,6 +154,7 @@ class SplitOperator:
             # Calculate the kinetic energy and potential energy operators.
             if self.hamiltonian.time_dependent:
                 # Calculate the controls at the start of the time step.
+                assert controls_fn is not None
                 controls: Controls = controls_fn(self._time_domain.time_axis[i])
 
                 # Calculate the kinetic energy operator.

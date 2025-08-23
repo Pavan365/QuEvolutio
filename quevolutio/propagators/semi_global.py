@@ -520,7 +520,6 @@ class SemiGlobal:
         # Ensure that a controls callable is passed for a time-dependent system.
         if self._system.time_dependent and controls_fn is None:
             raise ValueError("invalid controls callable")
-        assert controls_fn is not None
 
         # Create an array to store the propagated states.
         states: CTensors = np.zeros(
@@ -554,6 +553,7 @@ class SemiGlobal:
             controls: list[Optional[Controls]] = [None] * self._order_m
             if self._system.time_dependent:
                 for j, time in enumerate(time_nodes_curr):
+                    assert controls_fn is not None
                     controls[j] = controls_fn(time)
 
             # Set up the expansion states (variable scoping).
