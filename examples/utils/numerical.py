@@ -24,7 +24,7 @@ def states_norms(states: GTensors, domain: QuantumHilbertSpace) -> RVector:
     states : GTensors
         The states to calculate the norms of.
     domain : QuantumHilbertSpace
-        The discretised Hilbert space (domain) of the system.
+        The discretised Hilbert space (domain) that the states are defined on.
 
     Returns
     -------
