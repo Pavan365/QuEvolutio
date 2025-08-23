@@ -355,11 +355,11 @@ class SemiGlobal:
         # Calculate the Chebyshev expansion coefficients of the correction operator.
         self._correction_coefficients_curr: CVectors = cast(
             CVectors,
-            approx.ch_coefficients(correction_values_curr.T[::-1], dct_type=2).T,
+            approx.ch_coefficients_dct(correction_values_curr.T[::-1], dct_type=2).T,
         )
         self._correction_coefficients_next: CVectors = cast(
             CVectors,
-            approx.ch_coefficients(correction_values_next.T[::-1], dct_type=2).T,
+            approx.ch_coefficients_dct(correction_values_next.T[::-1], dct_type=2).T,
         )
 
         # Generate the conversion matrix.
@@ -597,7 +597,9 @@ class SemiGlobal:
                 if self._approximation == ApproximationBasis.CHEBYSHEV:
                     inhomogeneous_coefficients = cast(
                         CTensors,
-                        approx.ch_coefficients(inhomogeneous_values[::-1], dct_type=1),
+                        approx.ch_coefficients_dct(
+                            inhomogeneous_values[::-1], dct_type=1
+                        ),
                     )
 
                 # Newtonian interpolation expansion coefficients.

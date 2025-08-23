@@ -84,7 +84,7 @@ def ch_lobatto_nodes(num_nodes: int) -> RVector:
     return nodes
 
 
-def ch_coefficients(
+def ch_coefficients_dct(
     function_nodes: Union[GTensor, GTensors], dct_type: int
 ) -> Union[GTensor, GTensors]:
     """
@@ -136,7 +136,7 @@ def ch_coefficients(
     return coefficients
 
 
-def ch_bessel_coefficients(bessel_argument: float, order: int) -> CVector:
+def ch_coefficients_bessel(bessel_argument: float, order: int) -> CVector:
     """
     Calculates the expansion coefficients of a function being approximated
     using Chebyshev polynomials (first kind) using Bessel functions (first

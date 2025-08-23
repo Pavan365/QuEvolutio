@@ -154,7 +154,7 @@ class Chebyshev:
             * self._hamiltonian.spectrum_half_span
             / self._hamiltonian.domain.constants.hbar
         )
-        self._coefficients: CVector = approx.ch_bessel_coefficients(
+        self._coefficients: CVector = approx.ch_coefficients_bessel(
             bessel_argument, self._order_k
         )
 
