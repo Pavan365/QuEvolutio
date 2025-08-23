@@ -4,5 +4,8 @@
 # Ignore Python cached files.
 __pycache__
 
+# Ignore PyTest cached files.
+.pytest_cache
+
 # Ignore VS Code settings.
 .vscode
