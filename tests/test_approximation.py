@@ -128,6 +128,54 @@ def test_ch_coefficients_dct():
     assert np.allclose(function_exact, function_approx)
 
 
+def test_ch_coefficients_bessel():
+    """
+    Tests for the approx.ch_coefficients_bessel function.
+    """
+
+    # Define a known function.
+    def function(x):
+        return np.exp(-1j * x * 0.5)
+
+    # Define the Chebyshev expansion.
+    def ch_expansion(x, coefficients):
+        # Store the number of expansion terms.
+        order = coefficients.shape[0]
+
+        # Calculate the first two Chebyshev expansion polynomials.
+        polynomial_minus_2 = np.ones(len(x), dtype=np.float64)
+        polynomial_minus_1 = x.copy()
+
+        # Construct the starting expansion term.
+        expansion = (coefficients[0] * polynomial_minus_2) + (
+            coefficients[1] * polynomial_minus_1
+        )
+
+        # Construct the complete expansion.
+        for i in range(2, order):
+            polynomial_n = (2 * x * polynomial_minus_1) - polynomial_minus_2
+            expansion += coefficients[i] * polynomial_n
+
+            polynomial_minus_2 = polynomial_minus_1
+            polynomial_minus_1 = polynomial_n
+
+        return expansion
+
+    # Construct the exact solution.
+    x_axis = np.linspace(-1.0, 1.0, 100, dtype=np.float64)
+    function_exact = function(x_axis)
+
+    # Construct the approximate solution.
+    bessel_argument = 0.5
+    order = 20
+
+    function_coefficients = approx.ch_coefficients_bessel(bessel_argument, order)
+    function_approx = ch_expansion(x_axis, function_coefficients)
+
+    # Check that the approximated solution is similar to the exact solution.
+    assert np.allclose(function_exact, function_approx)
+
+
 def test_ch_expansion():
     """
     Tests for the approx.ch_expansion function.
