@@ -70,7 +70,7 @@ class Hamiltonian(Protocol):
         Returns
         -------
         GTensor
-            The result of acting the Hamiltonian on the sate.
+            The result of acting the Hamiltonian on the state.
         """
 
         ...
