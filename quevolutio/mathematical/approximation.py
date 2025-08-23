@@ -19,6 +19,7 @@ from typing import Optional, Union, cast
 # Import external modules.
 import numpy as np
 from scipy.fft import dct
+from scipy.special import jv
 
 # Import local modules.
 from quevolutio.core.aliases import (  # isort: skip
@@ -175,7 +176,7 @@ def ch_expansion(
 
     # Construct the starting expansion term.
     expansion: GTensor = (coefficients[0] * polynomial_minus_2) + (
-        coefficients[1] * polynomial_minus_2
+        coefficients[1] * polynomial_minus_1
     )
 
     # Construct the complete expansion.
