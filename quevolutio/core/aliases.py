@@ -6,10 +6,11 @@ Type aliases for the QuEvolutio framework.
 from typing import TypeAlias, Sequence
 
 # Import external modules.
+import scipy.sparse as sp
 from numpy import int64, float64, complex128
 from numpy.typing import NDArray
 
-## Semantic type aliases for mathematical objects.
+## Semantic type aliases for mathematical objects (dense representations).
 ## I -> Integer, R -> Real, C -> Complex, G -> General (floating).
 
 # Type aliases for vectors.
@@ -65,3 +66,33 @@ ITensorSeq: TypeAlias = Sequence[ITensor]
 RTensorSeq: TypeAlias = Sequence[RTensor]
 CTensorSeq: TypeAlias = Sequence[CTensor]
 GTensorSeq: TypeAlias = RTensorSeq | CTensorSeq
+
+## Semantic type aliases for mathematical objects (sparse representations).
+## SP -> GENERAL SPARSE MATRIX
+## BSR -> Block Sparse Row
+## COO -> Coordinate
+## CSC -> Compressed Sparse Column
+## CSR -> Compressed Sparse Row
+## DIA -> Diagonal
+## DOK -> Dictionary Of Keys
+## LIL -> List Of Lists
+
+# Type aliases for sparse matrices.
+SPMatrix: TypeAlias = sp.spmatrix
+BSRMatrix: TypeAlias = sp.bsr_matrix
+COOMatrix: TypeAlias = sp.coo_matrix
+CSCMatrix: TypeAlias = sp.csc_matrix
+CSRMatrix: TypeAlias = sp.csr_matrix
+DIAMatrix: TypeAlias = sp.dia_matrix
+DOKMatrix: TypeAlias = sp.dok_matrix
+LILMatrix: TypeAlias = sp.lil_matrix
+
+# Type aliases for collections of sparse matrices (Python).
+SPMatrixSeq: TypeAlias = Sequence[SPMatrix]
+BSRMatrixSeq: TypeAlias = Sequence[BSRMatrix]
+COOMatrixSeq: TypeAlias = Sequence[COOMatrix]
+CSCMatrixSeq: TypeAlias = Sequence[CSCMatrix]
+CSRMatrixSeq: TypeAlias = Sequence[CSRMatrix]
+DIAMatrixSeq: TypeAlias = Sequence[DIAMatrix]
+DOKMatrixSeq: TypeAlias = Sequence[DOKMatrix]
+LILMatrixSeq: TypeAlias = Sequence[LILMatrix]
