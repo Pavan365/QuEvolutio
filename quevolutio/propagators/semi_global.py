@@ -714,7 +714,7 @@ class SemiGlobal:
                         approx.ch_expansion(
                             expansion_states_curr[-1],
                             self._system.homogeneous_term_rs,
-                            self._correction_coefficients_curr[j],
+                            self._correction_coefficients_next[j],
                             controls[time_mid_idx],
                         ),
                     )
