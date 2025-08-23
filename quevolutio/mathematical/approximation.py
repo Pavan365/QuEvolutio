@@ -23,7 +23,9 @@ from scipy.special import jv
 
 # Import local modules.
 from quevolutio.core.aliases import (  # isort: skip
+    IVector,
     RVector,
+    CVector,
     GVector,
     RMatrix,
     GTensor,
@@ -130,6 +132,36 @@ def ch_coefficients(
     if dct_type == 2:
         coefficients /= order
         coefficients[0] /= 2
+
+    return coefficients
+
+
+def ch_bessel_coefficients(bessel_argument: float, order: int) -> CVector:
+    """
+    Calculates the expansion coefficients of a function being approximated
+    using Chebyshev polynomials (first kind) using Bessel functions (first
+    kind). In particular, these coefficients should be used when approximating
+    a function of the form f(x) = exp(-iax), where the factor "a" becomes the
+    argument to the Bessel functions.
+
+    Parameters
+    ----------
+    bessel_argument : float
+        The argument for the Bessel functions. This should correspond to a
+        constant factor "a" in a function of the form f(x) = exp(-iax).
+    order : int
+        The number of coefficients to calculate.
+
+    Returns
+    -------
+    coefficients : CVector
+        The Chebyshev expansion coefficients.
+    """
+
+    # Calculate the expansion coefficients.
+    orders: IVector = np.arange(order, dtype=np.int64)
+    coefficients: CVector = ((-1j) ** orders) * jv(orders, bessel_argument)
+    coefficients[1:] *= 2
 
     return coefficients
 
