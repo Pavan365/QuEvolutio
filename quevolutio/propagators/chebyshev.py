@@ -215,11 +215,11 @@ class Chebyshev:
 
             # If the Hamiltonian has explicit time dependence.
             # Calculate the controls at the start of the time step.
-            controls: Optional[Controls] = None
-            if self._hamiltonian.time_dependent:
-                controls: Optional[Controls] = controls_fn(
-                    self._time_domain.time_axis[i]
-                )
+            controls: Optional[Controls] = (
+                controls_fn(self._time_domain.time_axis[i])
+                if self._hamiltonian.time_dependent
+                else None
+            )
 
             # Calculate the Chebyshev expansion of the time-evolution operator.
             # Acting on the current state.
