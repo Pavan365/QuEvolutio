@@ -52,9 +52,9 @@ def test_ch_lobatto_nodes():
     assert np.allclose(nodes, -nodes[::-1])
 
 
-def test_ch_coefficients():
+def test_ch_coefficients_dct():
     """
-    Tests for the approx.ch_coefficients function.
+    Tests for the approx.ch_coefficients_dct function.
     """
 
     # Define a known function.
@@ -94,7 +94,7 @@ def test_ch_coefficients():
     nodes = approx.ch_gauss_nodes(order)
 
     function_nodes = function(nodes)
-    function_coefficients = approx.ch_coefficients(function_nodes[::-1], dct_type=2)
+    function_coefficients = approx.ch_coefficients_dct(function_nodes[::-1], dct_type=2)
     function_approx = ch_expansion(x_axis, function_coefficients)
 
     # Check that the coefficients match analytical values.
@@ -113,7 +113,7 @@ def test_ch_coefficients():
     nodes = approx.ch_lobatto_nodes(order)
 
     function_nodes = function(nodes)
-    function_coefficients = approx.ch_coefficients(function_nodes[::-1], dct_type=1)
+    function_coefficients = approx.ch_coefficients_dct(function_nodes[::-1], dct_type=1)
     function_approx = ch_expansion(x_axis, function_coefficients)
 
     # Check that the coefficients match analytical values.
@@ -161,7 +161,7 @@ def test_ch_expansion():
     nodes = (approx.ch_gauss_nodes(order) - shift) / scale
 
     function_nodes = function(nodes)
-    function_coefficients = approx.ch_coefficients(function_nodes[::-1], dct_type=2)
+    function_coefficients = approx.ch_coefficients_dct(function_nodes[::-1], dct_type=2)
     approximation = approx.ch_expansion(wavefunction, operator, function_coefficients)
 
     # Check that the approximated solution is similar to the exact solution.
@@ -214,7 +214,7 @@ def test_ch_ta_conversion():
     nodes, scale, shift = affine.rescale_tensor(nodes, x_min, x_max)
 
     function_nodes = function(nodes)
-    function_coefficients = approx.ch_coefficients(function_nodes[::-1], dct_type=1)
+    function_coefficients = approx.ch_coefficients_dct(function_nodes[::-1], dct_type=1)
 
     conversion_matrix = approx.ch_ta_conversion(order, x_min, x_max)
     derivatives = conversion_matrix.T @ function_coefficients
