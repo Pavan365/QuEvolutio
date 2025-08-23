@@ -524,8 +524,7 @@ class SemiGlobal:
 
         # Create an array to store the propagated states.
         states: CTensors = np.zeros(
-            self._time_domain.num_points,
-            *self._system.domain.num_points,
+            (self._time_domain.num_points, *self._system.domain.num_points),
             dtype=np.complex128,
         )
         states[0] = state.copy()
