@@ -305,7 +305,7 @@ class SemiGlobal:
 
         # Rescale the Chebyshev-Lobatto nodes to the first time interval.
         cl_nodes_rs: RVector = affine.rescale_tensor(
-            cl_nodes, self._time_domain.time_min, self._time_domain.time_max
+            cl_nodes, self._time_domain.time_axis[0], self._time_domain.time_axis[1]
         )[0]
 
         # Set up the entire propagation time grid of Chebyshev-Lobatto nodes.
