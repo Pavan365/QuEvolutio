@@ -25,6 +25,7 @@ from quevolutio.core.aliases import (  # isort: skip
     RVector,
     CVector,
     RVectorSeq,
+    RTensor,
     CTensors,
     CSRMatrix,
 )
@@ -185,8 +186,8 @@ def main():
     eigenvalues, eigenvectors = eigsh(h_matrix, k=5, which="SA")
 
     state_idx: int = 0
-    state_initial: RVector = cast(
-        RVector,
+    state_initial: RTensor = cast(
+        RTensor,
         domain.normalise_state(
             eigenvectors[:, state_idx].reshape(
                 domain.num_points[0], domain.num_points[1]
