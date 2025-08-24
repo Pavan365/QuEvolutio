@@ -48,7 +48,7 @@ class SplitOperator:
     -------------------
     _time_dt_half : float
         The half spacing between points in the time axis.
-    homogeneous_factor : complex
+    _homogeneous_factor : complex
         The constant that multiplies the homogeneous term in the time-dependent
         Schrödinger equation (TDSE).
     _full_step_factor : complex
@@ -76,13 +76,15 @@ class SplitOperator:
         self._time_dt_half: float = self._time_domain.time_dt / 2.0
 
         # Calculate the homogeneous pre-factor (TDSE).
-        self.homogeneous_factor: complex = -1j / self._hamiltonian.domain.constants.hbar
+        self._homogeneous_factor: complex = (
+            -1j / self._hamiltonian.domain.constants.hbar
+        )
 
         # Calculate the time-evolution operator pre-factors.
         self._full_step_factor: complex = (
-            self.homogeneous_factor * self._time_domain.time_dt
+            self._homogeneous_factor * self._time_domain.time_dt
         )
-        self._half_step_factor: complex = self.homogeneous_factor * self._time_dt_half
+        self._half_step_factor: complex = self._homogeneous_factor * self._time_dt_half
 
         # Pre-compute the kinetic energy and potential energy operators if possible.
         self._ke_operator: Optional[GTensor] = None
