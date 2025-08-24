@@ -1,5 +1,5 @@
 """
-Numerical functions for analysing simulation outputs.
+Numerical functions for analysing simulations.
 """
 
 # Import standard modules.
@@ -22,7 +22,8 @@ def states_norms(states: GTensors, domain: QuantumHilbertSpace) -> RVector:
     Parameters
     ----------
     states : GTensors
-        The states to calculate the norms of.
+        The states to calculate the norms of. This should have shape
+        (time_points, *domain.num_points)
     domain : QuantumHilbertSpace
         The discretised Hilbert space (domain) that the states are defined on.
 
@@ -55,7 +56,8 @@ def states_energies(
     Parameters
     ----------
     states : GTensors
-        The states to calculate the energy expectation values of.
+        The states to calculate the energy expectation values of. This should
+        have shape (time_points, *domain.num_points)
     hamiltonian : Hamiltonian
         The Hamiltonian of the system.
     time_domain : TimeGrid
