@@ -113,7 +113,7 @@ class SplitOperator:
     ## NOTE: PROPERTIES END ----------------------------------------------------
 
     def propagate(
-        self, state: GTensor, controls_fn: Optional[TDSEControls]
+        self, state: GTensor, controls_fn: Optional[TDSEControls] = None
     ) -> CTensors:
         """
         Propagates a state with respect to the time-dependent Schrödinger
