@@ -302,35 +302,43 @@ def main():
     print("Propagation Done")
 
     # Calculate the norms of the states.
-    norms: RVector = numerical.states_norms(states, domain)
+    norms: RVector = np.empty(time_domain.num_points, dtype=np.float64)
 
-    # Calculate the position expectation values in x of the states.
-    states_expectation_x: RVector = cast(
-        RVector,
-        np.trapezoid(
+    # Calculate the position expectation values in of the states.
+    states_expectation_x: RVector = np.empty(time_domain.num_points, dtype=np.float64)
+    states_expectation_y: RVector = np.empty(time_domain.num_points, dtype=np.float64)
+
+    # This is done in batches due to memory constraints.
+    batch: int = 1000
+
+    for i in range(0, time_domain.num_points, batch):
+        # Calculate the current batch index.
+        idx: int = min((i + batch), time_domain.num_points)
+
+        # Calculate the norms of the states.
+        norms[i:idx] = numerical.states_norms(states[i:idx], domain)
+
+        # Calculate the position expectation values in x of the states.
+        states_expectation_x[i:idx] = np.trapezoid(
             np.trapezoid(
-                ((np.abs(states) ** 2) * domain.position_meshes[0]),
+                ((np.abs(states[i:idx]) ** 2) * domain.position_meshes[0]),
                 dx=domain.position_deltas[0],
                 axis=1,
             ),
             axis=1,
             dx=domain.position_deltas[1],
-        ),
-    )
+        )
 
-    # Calculate the position expectation values in y of the states.
-    states_expectation_y: RVector = cast(
-        RVector,
-        np.trapezoid(
+        # Calculate the position expectation values in y of the states.
+        states_expectation_y[i:idx] = np.trapezoid(
             np.trapezoid(
-                ((np.abs(states) ** 2) * domain.position_meshes[1]),
+                ((np.abs(states[i:idx]) ** 2) * domain.position_meshes[1]),
                 dx=domain.position_deltas[0],
                 axis=1,
             ),
             axis=1,
             dx=domain.position_deltas[1],
-        ),
-    )
+        )
 
     # Calculate the error from the exact position expectation values in x.
     exact_expectation_x: RVector = 0.5 * (

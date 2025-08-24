@@ -218,17 +218,21 @@ def main():
     print("Propagation Done")
 
     # Calculate the norms of the states.
-    norms: RVector = numerical.states_norms(states, domain)
+    norms: RVector = np.empty(time_domain.num_points, dtype=np.float64)
 
-    # Calculate the maximum error from the exact solutions.
+    # Calculate the error from the exact solutions.
+    errors: RVector = np.empty(time_domain.num_points, dtype=np.float64)
+
     # This is done in batches due to memory constraints.
     batch: int = 1000
-    max_error: float = -1.0
 
     for i in range(0, time_domain.num_points, batch):
         # Calculate the current batch index and times.
         idx: int = min((i + batch), time_domain.num_points)
         times: RVector = time_domain.time_axis[i:idx]
+
+        # Calculate the norms of the states.
+        norms[i:idx] = numerical.states_norms(states[i:idx], domain)
 
         # Calculate the analytical solutions.
         phase_factors: CVector = np.exp(
@@ -239,13 +243,12 @@ def main():
             * phase_factors[(...,) + ((np.newaxis,) * domain.num_dimensions)]
         )
 
-        # Store the max error.
-        errors: RVector = numerical.states_norms((states_exact - states[i:idx]), domain)
-        max_error = max(max_error, np.max(errors))
+        # Store the errors.
+        errors[i:idx] = numerical.states_norms((states_exact - states[i:idx]), domain)
 
     # Print simulation information.
     print(f"Runtime \t\t: {(final_time - start_time):.5f} seconds")
-    print(f"Max Error \t\t: {max_error:.5e}")
+    print(f"Max Error \t\t: {np.max(errors):.5e}")
     print(f"Max Norm Deviation \t: {np.max(np.abs(norms - norms[0])):.5e}")
 
     # Set a common filename.
