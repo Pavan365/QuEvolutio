@@ -188,9 +188,13 @@ def main():
     propagator = SplitOperator(hamiltonian, time_domain)
 
     # Propagate the initial state (timed).
+    print("Propagation Start")
     start_time: float = time.time()
-    states: CTensors = propagator.propagate(state_initial)
+    states: CTensors = propagator.propagate(
+        state_initial, controls_fn=None, diagnostics=True
+    )
     final_time: float = time.time()
+    print("Propagation Done")
 
     # Calculate the norms of the states.
     norms: RVector = numerical.states_norms(states, domain)

@@ -226,9 +226,13 @@ def main():
     propagator = Chebyshev(hamiltonian, time_domain, order_k=20)
 
     # Propagate the initial state (timed).
+    print("Propagation Start")
     start_time: float = time.time()
-    states: CTensors = propagator.propagate(state_initial)
+    states: CTensors = propagator.propagate(
+        state_initial, controls_fn=None, diagnostics=True
+    )
     final_time: float = time.time()
+    print("Propagation Done")
 
     # Calculate the norms and energies of the states.
     norms: RVector = numerical.states_norms(states, domain)
