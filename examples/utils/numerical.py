@@ -48,7 +48,7 @@ def states_energies(
     states: GTensors,
     hamiltonian: Hamiltonian,
     time_domain: TimeGrid,
-    controls_fn: Optional[TDSEControls],
+    controls_fn: Optional[TDSEControls] = None,
 ) -> RVector:
     """
     Calculates the energy expectation values for a set of states.
