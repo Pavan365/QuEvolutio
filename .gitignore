@@ -1,11 +1,16 @@
 # Ignore Python .egg-info files.
-*.egg-info
+*.egg-info/
 
 # Ignore Python cached files.
-__pycache__
+__pycache__/
 
 # Ignore PyTest cached files.
-.pytest_cache
+.pytest_cache/
 
 # Ignore VS Code settings.
-.vscode
+.vscode/
+
+# Ignore data generated from examples.
+data/
+figures/
+anims/
