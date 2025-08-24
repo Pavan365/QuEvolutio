@@ -262,7 +262,7 @@ def animate_states_1D(
     dpi: int = 200
 
     # Render the animation.
-    ani = FuncAnimation(fig, animate, frames, blit=True, interval=(1000 / fps))
+    ani = FuncAnimation(fig, animate, len(frames), blit=True, interval=(1000 / fps))
     writer = FFMpegWriter(fps=fps, bitrate=bitrate)
 
     # Save the animation.
@@ -338,7 +338,7 @@ def animate_states_2D(
     dpi: int = 200
 
     # Render the animation.
-    ani = FuncAnimation(fig, animate, frames, blit=False, interval=(1000 / fps))
+    ani = FuncAnimation(fig, animate, len(frames), blit=False, interval=(1000 / fps))
     writer = FFMpegWriter(fps=fps, bitrate=bitrate)
 
     # Save the animation.
