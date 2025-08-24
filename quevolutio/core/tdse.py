@@ -7,7 +7,12 @@ system.
 from typing import Callable, Mapping, Optional, Protocol, Sequence, TypeAlias, cast
 
 # Import local modules.
-from quevolutio.core.aliases import CTensor, GTensor, GVectorSeq
+from quevolutio.core.aliases import (  # isort: skip
+    GVectorSeq,
+    CTensor,
+    GTensor,
+    SPMatrix,
+)
 from quevolutio.core.domain import QuantumHilbertSpace
 
 # Type aliases for controls (time-dependent parameters).
@@ -192,6 +197,45 @@ class HamiltonianSeparable(Protocol):
         GVectorSeq
             The potential energy diagonal(s) in position space. This is a
             sequence of GVector, with length (domain.num_dimensions).
+        """
+
+        ...
+
+
+class HamiltonianMatrix(Protocol):
+    """
+    Interface for representing a Hamiltonian matrix (sparse format). This class
+    can be extended to contain system specific attributes, pre-computed terms
+    and methods as required.
+
+    Attributes
+    ----------
+    domain : QuantumHilbertSpace
+        The discretised Hilbert space (domain) of the quantum system.
+    time_dependent : bool
+        A boolean flag that indicates whether the Hamiltonian has explicit time
+        dependence.
+    """
+
+    domain: QuantumHilbertSpace
+    time_dependent: bool
+
+    def __call__(self, controls: Optional[Controls] = None) -> SPMatrix:
+        """
+        Calculates the Hamiltonian matrix (sparse format) is position space. If
+        the Hamiltonian has explicit time dependence, a set of controls should
+        be passed.
+
+        Parameters
+        ----------
+        controls : Optional[Controls]
+            The controls which determine the structure of the Hamiltonian. This
+            should be passed if the Hamiltonian has explicit time dependence.
+
+        Returns
+        -------
+        SPMatrix
+            The Hamiltonian matrix in position space (sparse format).
         """
 
         ...
