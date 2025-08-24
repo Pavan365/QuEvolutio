@@ -643,7 +643,7 @@ class SemiGlobal:
 
                     # Calculate the Taylor-like expansion term.
                     expansion_term: CTensor = np.zeros(
-                        *self._system.domain.num_points, dtype=np.complex128
+                        tuple(self._system.domain.num_points), dtype=np.complex128
                     )
                     for k in range(self._order_m):
                         expansion_term += (time_dt_m**k) * expansion_states_curr[k]
@@ -704,7 +704,7 @@ class SemiGlobal:
 
                     # Calculate the Taylor-like expansion term.
                     expansion_term: CTensor = np.zeros(
-                        *self._system.domain.num_points, dtype=np.complex128
+                        tuple(self._system.domain.num_points), dtype=np.complex128
                     )
                     for k in range(self._order_m):
                         expansion_term += (time_dt_m**k) * expansion_states_curr[k]
