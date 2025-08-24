@@ -59,10 +59,12 @@ class SplitOperator:
         half-step.
     _ke_operator : Optional[GTensor]
         The kinetic energy operator of the quantum system. This is set to None
-        if the kinetic energy operator has explicit time dependence.
+        during initialisation if the kinetic energy operator has explicit time
+        dependence.
     _pe_operator : Optional[GTensor]
         The potential energy operator of the quantum system. This is set to
-        None if the potential energy operator has explicit time dependence.
+        None during initialisation if the potential energy operator has
+        explicit time dependence.
     """
 
     def __init__(
@@ -165,7 +167,7 @@ class SplitOperator:
 
             # If the Hamiltonian has explicit time dependence.
             # Calculate the kinetic energy and potential energy operators.
-            if self.hamiltonian.time_dependent:
+            if self._hamiltonian.time_dependent:
                 # Calculate the controls at the start of the time step.
                 assert controls_fn is not None
                 controls: Controls = controls_fn(self._time_domain.time_axis[i])
