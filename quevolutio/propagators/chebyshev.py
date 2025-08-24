@@ -86,7 +86,7 @@ class ChebyshevHamiltonian(Hamiltonian):
         """
 
         return (
-            self(state, controls) - (self.spectrum_centre * state)
+            self._hamiltonian(state, controls) - (self.spectrum_centre * state)
         ) / self.spectrum_half_span
 
 
