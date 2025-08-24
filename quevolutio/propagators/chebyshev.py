@@ -175,7 +175,10 @@ class Chebyshev:
     ## NOTE: PROPERTIES END ----------------------------------------------------
 
     def propagate(
-        self, state: GTensor, controls_fn: Optional[TDSEControls] = None
+        self,
+        state: GTensor,
+        controls_fn: Optional[TDSEControls] = None,
+        diagnostics: bool = False,
     ) -> CTensors:
         """
         Propagates a state with respect to the time-dependent Schrödinger
@@ -189,6 +192,10 @@ class Chebyshev:
             A callable that generates the controls which determine the
             structure of the TDSE at a given time. This should be passed if the
             TDSE has explicit time dependence.
+        diagnostics : bool
+            A boolean flag that indicates whether to output diagnostic
+            information during propagation. In the current implementation this
+            is just the time index.
 
         Returns
         -------
@@ -209,6 +216,10 @@ class Chebyshev:
 
         # Propagate the state.
         for i in range(self._time_domain.num_points - 1):
+            # Print diagnostic information.
+            if diagnostics:
+                print(f"Time Index: {i}")
+
             # Store the current state.
             state_curr: CTensor = states[i]
 
