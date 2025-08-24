@@ -230,8 +230,9 @@ def main():
     states: CTensors = propagator.propagate(state_initial)
     final_time: float = time.time()
 
-    # Calculate the norms of the states.
+    # Calculate the norms and energies of the states.
     norms: RVector = numerical.states_norms(states, domain)
+    energies: RVector = numerical.states_energies(states, hamiltonian, time_domain)
 
     # Calculate the errors from the exact solutions.
     states_exact: CTensors = sho.eigenstate_solutions(
@@ -243,6 +244,7 @@ def main():
     print(f"Runtime \t\t: {(final_time - start_time):.5f} seconds")
     print(f"Max Error \t\t: {np.max(errors):.5e}")
     print(f"Max Norm Deviation \t: {np.max(np.abs(norms - norms[0])):.5e}")
+    print(f"Max Energy Deviation \t: {np.max(np.abs(energies - energies[0])):.5e}")
 
     # Set a common filename.
     filename: str = "standard_ho_1d"
