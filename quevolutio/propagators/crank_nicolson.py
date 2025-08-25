@@ -44,6 +44,8 @@ class CrankNicolson1D:
 
     Internal Attributes
     -------------------
+    _time_dt_half : float
+        The half spacing between points in the time axis.
     _identity_matrix : CSCMatrix
         The identity matrix in sparse CSC format.
     _matrix_factor : complex
@@ -70,6 +72,9 @@ class CrankNicolson1D:
         # Assign attributes.
         self._hamiltonian: HamiltonianMatrix = hamiltonian
         self._time_domain: TimeGrid = time_domain
+
+        # Calculate the half-step time value.
+        self._time_dt_half: float = self._time_domain.time_dt / 2.0
 
         # Calculate the identity matrix.
         self._identity_matrix: CSCMatrix = cast(
@@ -176,7 +181,9 @@ class CrankNicolson1D:
             if self._hamiltonian.time_dependent:
                 # Calculate the controls at the start of the time step.
                 assert controls_fn is not None
-                controls: Controls = controls_fn(self._time_domain.time_axis[i])
+                controls: Controls = controls_fn(
+                    self._time_domain.time_axis[i] + self._time_dt_half
+                )
 
                 # Calculate the Hamiltonian matrix.
                 self._hamiltonian_matrix: Optional[CSCMatrix] = self._hamiltonian(
