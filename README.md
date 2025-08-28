@@ -58,6 +58,9 @@ $ pip install -e .[dev]
 > [!NOTE]
 > It is recommended to perform installation within a Python environment.
 
+> [!IMPORTANT]
+> Ensure that `pip` is up to date.
+
 ## Usage
 <p align="justify">
 Documentation that gives a comprehensive overview of how QuEvolutio can be used
